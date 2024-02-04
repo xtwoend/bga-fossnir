@@ -19,8 +19,14 @@ class Samba
         return $this->share->dir($dir);
     } 
 
-    public function list(){
+    public function list()
+    {
         return $this->server->listShares();
+    }
+
+    public function rename($source, $target)
+    {
+        return $this->share->rename($source, $target);
     }
 
     public function read($filename){
@@ -31,6 +37,11 @@ class Samba
 
     public function download($filename, $target){
         return $this->share->get($filename, $target);
+    }
+
+    public function server()
+    {
+        return $this->server;
     }
 
     public function smb($config){

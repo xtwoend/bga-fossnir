@@ -53,35 +53,37 @@ class ReadSmbFileCommand extends HyperfCommand
 
     protected function readAndDownload($dir) {
         $smb = make(Samba::class);
+        try {
+            $files = $smb->dir($dir->dir_path);
+            $tempDir = BASE_PATH . '/temp'. strtolower($dir->dir_path);
+            if(! is_dir($tempDir)) {
+                mkdir($tempDir, 0777);
+            }
+            foreach($files as $file) {
+                if(! $file->isDirectory()) {
+                    $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
+                    
+                    $count = ResultFile::where('filename', $file->getName())
+                        ->where('mill_id', $dir->id)
+                        // ->where('filesize', $file->getSize())
+                        ->count();
 
-        $files = $smb->dir($dir->dir_path);
-        $tempDir = BASE_PATH . '/temp'. strtolower($dir->dir_path);
-        if(! is_dir($tempDir)) {
-            mkdir($tempDir, 0777);
-        }
-
-        foreach($files as $file) {
-            if(! $file->isDirectory()) {
-                $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
-                
-                $count = ResultFile::where('filename', $file->getName())
-                    ->where('mill_id', $dir->id)
-                    // ->where('filesize', $file->getSize())
-                    ->count();
-
-                if($count == 0) {
-                    ResultFile::create([
-                        'mill_id' => $dir->id,
-                        'filename' => $file->getName(),
-                        'modified_at' => $file->getMTime(),
-                        'filesize' => $file->getSize(),
-                        'path' => $file->getPath(),
-                        'download_path' => $tempFile
-                    ]);
-                    // download
-                    $smb->download($file->getPath(), $tempFile);
+                    if($count == 0) {
+                        ResultFile::create([
+                            'mill_id' => $dir->id,
+                            'filename' => $file->getName(),
+                            'modified_at' => $file->getMTime(),
+                            'filesize' => $file->getSize(),
+                            'path' => $file->getPath(),
+                            'download_path' => $tempFile
+                        ]);
+                        // download
+                        $smb->download($file->getPath(), $tempFile);
+                    }
                 }
             }
+        } catch (\Throwable $th) {
+            //throw $th;
         }
     }
 }
