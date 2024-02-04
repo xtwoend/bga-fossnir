@@ -28,6 +28,7 @@
         "hyperf/logger": "~3.0.0",
         "hyperf/memory": "~3.0.0",
         "hyperf/process": "^3.0",
+        "hyperf/resource": "^3.0",
         "icewind/smb": "^3.6",
         "php-mqtt/client": "^2.0"
     },
