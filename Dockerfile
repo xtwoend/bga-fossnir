@@ -1,54 +1,44 @@
-# Default Dockerfile
-#
-# @link     https://www.hyperf.io
-# @document https://hyperf.wiki
-# @contact  group@hyperf.io
-# @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+FROM ubuntu:22.04
 
-FROM hyperf/hyperf:8.1-alpine-v3.18-swoole-v5.0
-LABEL maintainer="Hyperf Developers <group@hyperf.io>" version="1.0" license="MIT" app.name="Hyperf"
-
-##
-# ---------- env settings ----------
-##
-# --build-arg timezone=Asia/Shanghai
-ARG timezone
-
-ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
-    APP_ENV=prod \
-    SCAN_CACHEABLE=(true)
-
-# update
-RUN set -ex \
-    # show php version and extensions
-    && php -v \
-    && php -m \
-    && php --ri swoole \
-    #  ---------- some config ----------
-    && cd /etc/php* \
-    # - config PHP
-    && { \
-        echo "upload_max_filesize=128M"; \
-        echo "post_max_size=128M"; \
-        echo "memory_limit=1G"; \
-        echo "date.timezone=${TIMEZONE}"; \
-    } | tee conf.d/99_overrides.ini \
-    # - config timezone
-    && ln -sf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime \
-    && echo "${TIMEZONE}" > /etc/timezone \
-    # ---------- clear works ----------
-    && rm -rf /var/cache/apk/* /tmp/* /usr/share/man \
-    && echo -e "\033[42;37m Build Completed :).\033[0m\n"
+LABEL maintainer="Abdul Hafidz A"
 
 WORKDIR /opt/www
 
-# Composer Cache
-# COPY ./composer.* /opt/www/
-# RUN composer install --no-dev --no-scripts
+ENV DEBIAN_FRONTEND noninteractive
+ENV TZ=UTC
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update \
+    && apt-get install -y gnupg gosu curl ca-certificates zip unzip git libcap2-bin libpng-dev \
+    && mkdir -p ~/.gnupg \
+    && chmod 600 ~/.gnupg \
+    && echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf \
+    && echo "keyserver hkp://keyserver.ubuntu.com:80" >> ~/.gnupg/dirmngr.conf \
+    && gpg --recv-key 0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c \
+    && gpg --export 0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c > /usr/share/keyrings/ppa_ondrej_php.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/ppa_ondrej_php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu jammy main" > /etc/apt/sources.list.d/ppa_ondrej_php.list \
+    && apt-get update \
+    && apt-get install -y php8.1-cli php8.1-dev \
+       php8.1-pgsql php8.1-sqlite3 php8.1-gd \
+       php8.1-curl \
+       php8.1-imap php8.1-mysql php8.1-mbstring \
+       php8.1-xml php8.1-zip php8.1-bcmath php8.1-soap \
+       php8.1-intl php8.1-readline \
+       php8.1-ldap \
+       php8.1-msgpack php8.1-igbinary php8.1-redis php8.1-swoole \
+       php8.1-memcached php8.1-pcov php8.1-xdebug \
+    && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer \
+    && pecl install smbclient \
+    && apt-get update \
+    && apt-get install -y mysql-client \
+    && apt-get -y autoremove \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY . /opt/www
 RUN composer install --no-dev -o && php bin/hyperf.php
 
-EXPOSE 9501
+EXPOSE 9502
 
 ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
