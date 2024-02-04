@@ -35,8 +35,6 @@ class ReadSmbFileCommand extends HyperfCommand
 
     public function handle()
     {   
-        $smb = make(Samba::class);
-
         $mill_id = $this->input->getArgument('mill_id');
 
         if($mill_id) {
@@ -56,6 +54,7 @@ class ReadSmbFileCommand extends HyperfCommand
         try {
             $files = $smb->dir($dir->dir_path);
             $tempDir = BASE_PATH . '/temp'. strtolower($dir->dir_path);
+
             if(! is_dir($tempDir)) {
                 mkdir($tempDir, 0777);
             }
@@ -77,13 +76,24 @@ class ReadSmbFileCommand extends HyperfCommand
                             'path' => $file->getPath(),
                             'download_path' => $tempFile
                         ]);
+                        
                         // download
-                        $smb->download($file->getPath(), $tempFile);
+                        if($smb->download($file->getPath(), $tempFile)) {
+            
+                            try {
+                                $smb->mkdir('ARCHIVES' . $dir->dir_path);
+                            } catch (\Throwable $th) {
+                                //throw $th;
+                            }
+                           
+                            $smb->rename( $file->getPath(),  'ARCHIVES'. $file->getPath());
+                        }
                     }
                 }
             }
         } catch (\Throwable $th) {
             //throw $th;
+            var_dump($th->getMessage());
         }
     }
 }

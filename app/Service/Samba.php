@@ -19,6 +19,11 @@ class Samba
         return $this->share->dir($dir);
     } 
 
+    public function mkdir($path)
+    {
+        return $this->share->mkdir($path);
+    }
+
     public function list()
     {
         return $this->server->listShares();
