@@ -94,7 +94,7 @@ class ReadCsvFileCommand extends HyperfCommand
                             'updated_at' => Carbon::now()
                         ];
                     }
-                    //code...
+
                 } catch (\Throwable $th) {
                     continue;
                 }
@@ -103,6 +103,7 @@ class ReadCsvFileCommand extends HyperfCommand
             if(! empty($csv)) {
                 CSVRead::table($file->mill_id)->insert($csv);
                 $file->update(['processed' => 1]);
+                unlink($temp_file);
             }
         }
     }
