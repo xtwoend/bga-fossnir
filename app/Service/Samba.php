@@ -145,9 +145,13 @@ class Samba
         $host = $config['host'] ?? config('smb.host');
         $shareName = $config['sharename'] ?? config('smb.sharename');
         $timeout = $config['timeout'] ?? config('smb.timeout');
+        $minProtocol = $config['smb_version_min'] ?? config('smb.smb_version_min');
+        $maxProtocol = $config['smb_version_max'] ?? config('smb.smb_version_max');
 
         $option = new Options();
         $option->setTimeout($timeout);
+        $option->setMinProtocol($minProtocol);
+        $option->setMaxProtocol($maxProtocol);
     
         $serverFactory = new ServerFactory($option);
         $auth = new BasicAuth($username, $workgroup, $password);
