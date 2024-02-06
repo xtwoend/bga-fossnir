@@ -120,11 +120,12 @@ class Samba
      */
     public function getLatestFile($dir, $date)
     {
+
         $files = $this->getEntries($dir);
         $filters = [];
         foreach($files as $file) {
             $filters[] = $file;
-            if($file->getMTime() < Carbon::now('UTC')->timestamp) {
+            if($file->getMTime() < $date) {
                 break;
             }
         }
