@@ -2,12 +2,9 @@
 
 namespace App\Service;
 
+use Carbon\Carbon;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
-
-define('SAMBA_SORT_BY_TIME', 'mtime');
-define('SAMBA_SORT_BY_SIZE', 'size');
-define('SAMBA_SORT_ASC_ORDER', 'desc');
 
 class Samba
 {
@@ -59,7 +56,7 @@ class Samba
      *
      * @throws CoreException
      */
-    public function getFiles($path = '/', $sort = SAMBA_SORT_BY_TIME, $order = SAMBA_SORT_ASC_ORDER)
+    public function getFiles($path = '/', $sort = 'mtime', $order = 'desc')
     {
         $entries = $this->getEntries($path, $sort, $order);
         $filteredEntries = array_filter($entries, [$this, 'filterByFile']);
@@ -117,6 +114,23 @@ class Samba
         }
         return ($firstFile->getMTime() < $secondFile->getMTime()) ? -1 : 1;
     }
+
+    /**
+     * get only latest file 
+     */
+    public function getLatestFile($dir, $date)
+    {
+        $files = $this->getEntries($dir);
+        $filters = [];
+        foreach($files as $file) {
+            $filters[] = $file;
+            if($file->getMTime() < Carbon::now('UTC')->timestamp) {
+                break;
+            }
+        }
+        return $filters;
+    }
+    
 
     public function server()
     {
