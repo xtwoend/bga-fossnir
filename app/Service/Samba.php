@@ -144,8 +144,12 @@ class Samba
         $workgroup = $config['workgroup'] ?? config('smb.workgroup');
         $host = $config['host'] ?? config('smb.host');
         $shareName = $config['sharename'] ?? config('smb.sharename');
+        $timeout = $config['timeout'] ?? config('smb.timeout');
 
-        $serverFactory = new ServerFactory();
+        $option = new Options();
+        $option->setTimeout($timeout);
+    
+        $serverFactory = new ServerFactory($option);
         $auth = new BasicAuth($username, $workgroup, $password);
         $this->server = $serverFactory->createServer($host, $auth);
         $this->share = $this->server->getShare($shareName);
