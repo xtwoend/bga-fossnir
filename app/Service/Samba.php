@@ -86,13 +86,13 @@ class Samba
      *
      * @throws CoreException
      */
-    public function getEntries($path = '/', $sort = SAMBA_SORT_BY_TIME, $order = SAMBA_SORT_ASC_ORDER)
+    public function getEntries($path = '/', $sort = 'mtime', $order = 'desc')
     {
         $entries = $this->dir($path);
 
         if ($entries !== null) {
             usort($entries, [$this, 'compareByTime']);
-            if ($order !== SAMBA_SORT_ASC_ORDER) {
+            if ($order !== 'desc') {
                 $entries = array_reverse($entries);
             }
         }
