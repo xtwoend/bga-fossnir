@@ -5,6 +5,10 @@ namespace App\Service;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\ServerFactory;
 
+define('SAMBA_SORT_BY_TIME', 'mtime');
+define('SAMBA_SORT_BY_SIZE', 'size');
+define('SAMBA_SORT_ASC_ORDER', 'desc');
+
 class Samba
 {
     protected $server;
@@ -42,6 +46,76 @@ class Samba
 
     public function download($filename, $target){
         return $this->share->get($filename, $target);
+    }
+
+    /**
+     * Get files list in folder
+     *
+     * @param string $path Folder path
+     * @param string $sort Sort method (mtime, size or name)
+     * @param string $order Order (asc or desc)
+     *
+     * @return IFileInfo[] Folder content
+     *
+     * @throws CoreException
+     */
+    public function getFiles($path = '/', $sort = SAMBA_SORT_BY_TIME, $order = SAMBA_SORT_ASC_ORDER)
+    {
+        $entries = $this->getEntries($path, $sort, $order);
+        $filteredEntries = array_filter($entries, [$this, 'filterByFile']);
+        return $filteredEntries;
+    }
+
+    /**
+     * Test if item is a file.
+     *
+     * @param IFileInfo $currentItem Item to test
+     *
+     * @return True if item if file
+     */
+    private function filterByFile($currentItem)
+    {
+        return $currentItem->isDirectory() === false;
+    }
+    
+    /**
+     * Get folder content
+     *
+     * @param string $path Folder path
+     * @param string $sort Sort method (mtime, size or name)
+     * @param string $order Order (asc or desc)
+     *
+     * @return IFileInfo[]|null Folder content
+     *
+     * @throws CoreException
+     */
+    public function getEntries($path = '/', $sort = SAMBA_SORT_BY_TIME, $order = SAMBA_SORT_ASC_ORDER)
+    {
+        $entries = $this->dir($path);
+
+        if ($entries !== null) {
+            usort($entries, [$this, 'compareByTime']);
+            if ($order !== SAMBA_SORT_ASC_ORDER) {
+                $entries = array_reverse($entries);
+            }
+        }
+        return $entries;
+    }
+
+    /**
+     * Compare by time for sort list
+     *
+     * @param IFileInfo $firstFile Data of the first file
+     * @param IFileInfo $secondFile Data of the second file
+     *
+     * @return int Sort information
+     */
+    private function compareByTime($firstFile, $secondFile)
+    {
+        if ($firstFile->getMTime() === $secondFile->getMTime()) {
+            return 0;
+        }
+        return ($firstFile->getMTime() < $secondFile->getMTime()) ? -1 : 1;
     }
 
     public function server()
