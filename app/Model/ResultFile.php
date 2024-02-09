@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Model\Model;
+use Hyperf\Database\Schema\Blueprint;
 
 /**
  */
@@ -29,6 +31,29 @@ class ResultFile extends Model
         'processed' => 'boolean'
     ];
 
+
+    public static function table($millId)
+    {
+        $model = new self;
+        $tableName = $model->getTable() . "_{$millId}";
+        
+        if(! Schema::hasTable($tableName)) {
+            Schema::create($tableName, function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->unsignedBigInteger('mill_id')->nullable();
+                $table->string('filename');
+                $table->string('path')->index();
+                $table->string('download_path')->index();
+                $table->boolean('processed')->default(false);
+                $table->integer('filesize')->nullable();
+                $table->integer('modified_at')->nullable();
+                $table->timestamps();
+            });
+        }
+
+        return $model->setTable($tableName);
+    }
+    
     /**
      * mill dir
      */
