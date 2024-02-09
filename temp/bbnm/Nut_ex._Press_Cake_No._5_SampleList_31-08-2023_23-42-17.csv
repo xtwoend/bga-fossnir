@@ -1,0 +1,5 @@
+"DB ID","Date","Time","Product Name","Instrument Serial Number","Parameter Name","Result","UDF1","UDF2","UDF3","UDF4","UDF5","UDF6","Cancelled Flag"
+"10,344","31-Aug-23","23:42:17","Nut ex. Press Cake No. 5","91908989","Oil/WM","0.89",,,,,,,"0"
+"10,344","31-Aug-23","23:42:17","Nut ex. Press Cake No. 5","91908989","VM","10.16",,,,,,,"0"
+"10,344","31-Aug-23","23:42:17","Nut ex. Press Cake No. 5","91908989","Oil/DM","1",,,,,,,"0"
+"10,344","31-Aug-23","23:42:17","Nut ex. Press Cake No. 5","91908989","NOS","88.95",,,,,,,"0"

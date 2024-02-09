@@ -1,0 +1,5 @@
+"DB ID","Date","Time","Product Name","Instrument Serial Number","Parameter Name","Result","UDF1","UDF2","UDF3","UDF4","UDF5","UDF6","Cancelled Flag"
+"10,353","01-Sep-23","09:54:06","Sludge Centrifuge No. 1","91908989","Oil/WM","0.67",,,,,,,"0"
+"10,353","01-Sep-23","09:54:06","Sludge Centrifuge No. 1","91908989","VM","92.51",,,,,,,"0"
+"10,353","01-Sep-23","09:54:06","Sludge Centrifuge No. 1","91908989","Oil/DM","9.02",,,,,,,"0"
+"10,353","01-Sep-23","09:54:06","Sludge Centrifuge No. 1","91908989","NOS","6.81",,,,,,,"0"

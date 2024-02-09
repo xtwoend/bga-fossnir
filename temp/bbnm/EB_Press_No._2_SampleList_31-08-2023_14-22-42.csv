@@ -1,0 +1,5 @@
+"DB ID","Date","Time","Product Name","Instrument Serial Number","Parameter Name","Result","UDF1","UDF2","UDF3","UDF4","UDF5","UDF6","Cancelled Flag"
+"10,293","31-Aug-23","14:22:42","EB Press No. 2","91908989","Oil/WM","4.03",,,,,,,"0"
+"10,293","31-Aug-23","14:22:42","EB Press No. 2","91908989","VM","42.85",,,,,,,"0"
+"10,293","31-Aug-23","14:22:42","EB Press No. 2","91908989","Oil/DM","7.05",,,,,,,"0"
+"10,293","31-Aug-23","14:22:42","EB Press No. 2","91908989","NOS","53.12",,,,,,,"0"

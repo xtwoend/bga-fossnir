@@ -36,7 +36,7 @@ class ReadSmbFileCommand extends HyperfCommand
     public function handle()
     {   
         $mill_id = $this->input->getArgument('mill_id');
-
+        
         if($mill_id) {
             $dir = FossnirDir::find($mill_id);
             if($dir){
@@ -62,13 +62,13 @@ class ReadSmbFileCommand extends HyperfCommand
                 if(! $file->isDirectory()) {
                     $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
                     
-                    $count = ResultFile::table($file->mill_id)->where('filename', $file->getName())
+                    $count = ResultFile::table($dir->mill_id)->where('filename', $file->getName())
                         ->where('mill_id', $dir->id)
                         ->where('filesize', $file->getSize())
                         ->count();
 
                     if($count == 0) {
-                        ResultFile::table($file->mill_id)->create([
+                        ResultFile::table($dir->mill_id)->create([
                             'mill_id' => $dir->id,
                             'filename' => $file->getName(),
                             'modified_at' => $file->getMTime(),

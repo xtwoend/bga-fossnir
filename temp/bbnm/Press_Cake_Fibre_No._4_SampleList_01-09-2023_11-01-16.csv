@@ -1,0 +1,5 @@
+"DB ID","Date","Time","Product Name","Instrument Serial Number","Parameter Name","Result","UDF1","UDF2","UDF3","UDF4","UDF5","UDF6","Cancelled Flag"
+"10,364","01-Sep-23","11:01:16","Press Cake Fibre No. 4","91908989","Oil/WM","4.69",,,,,,,"0"
+"10,364","01-Sep-23","11:01:16","Press Cake Fibre No. 4","91908989","VM","31.47",,,,,,,"0"
+"10,364","01-Sep-23","11:01:16","Press Cake Fibre No. 4","91908989","Oil/DM","6.85",,,,,,,"0"
+"10,364","01-Sep-23","11:01:16","Press Cake Fibre No. 4","91908989","NOS","63.84",,,,,,,"0"
