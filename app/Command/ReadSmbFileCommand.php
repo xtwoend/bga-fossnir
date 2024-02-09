@@ -79,14 +79,14 @@ class ReadSmbFileCommand extends HyperfCommand
                         
                         // download
                         if($smb->download($file->getPath(), $tempFile)) {
-            
+                            $archivePath = $dir->dir_path . '/ARCHIVES';
                             try {
-                                $smb->mkdir('ARCHIVES' . $dir->dir_path);
+                                $smb->mkdir($archivePath);
                             } catch (\Throwable $th) {
                                 //throw $th;
                             }
                            
-                            $smb->rename( $file->getPath(),  'ARCHIVES'. $file->getPath());
+                            $smb->rename($file->getPath(),  $archivePath . '/' . $file->getName());
                         }
                     }
                 }
