@@ -68,7 +68,7 @@ class ReadSmbFileCommand extends HyperfCommand
                         ->count();
 
                     if($count == 0) {
-                        ResultFile::create([
+                        ResultFile::table($file->mill_id)->create([
                             'mill_id' => $dir->id,
                             'filename' => $file->getName(),
                             'modified_at' => $file->getMTime(),

@@ -38,13 +38,17 @@ class ReadCsvFileCommand extends HyperfCommand
         $mill_id = $this->input->getArgument('mill_id');
         
         if($mill_id) {
-            $files = ResultFile::where('processed', 0)->where('mill_id', $mill_id)->get();
+            $files = ResultFile::table($mill_id)->where('processed', 0)->get();
+            foreach($files as $file) {
+                $this->readFile($file);
+            }
         }else{
-            $files = ResultFile::where('processed', 0)->get();
-        }
-
-        foreach($files as $file) {
-            $this->readFile($file);
+            foreach(FossnirDir::where('auto_read', 1)->get() as $dir) {
+                $files = ResultFile::table($dir->mill_id)->where('processed', 0)->get();
+                foreach($files as $file) {
+                    $this->readFile($file);
+                }
+            }
         }
     }
 
