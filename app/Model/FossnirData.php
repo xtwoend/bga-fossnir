@@ -44,10 +44,10 @@ class FossnirData extends Model
                 $table->datetime('sample_date');
                 $table->string('instrument_serial');
                 $table->string('product_name');
-                $table->float('owm', 5, 2)->default(NULL);
-                $table->float('vm', 5, 2)->default(NULL);
-                $table->float('odm', 5, 2)->default(NULL);
-                $table->float('nos', 5, 2)->default(NULL);
+                $table->float('owm', 5, 2)->nullable()->default(NULL);
+                $table->float('vm', 5, 2)->nullable()->default(NULL);
+                $table->float('odm', 5, 2)->nullable()->default(NULL);
+                $table->float('nos', 5, 2)->nullable()->default(NULL);
                 $table->datetimes();
             });
         }
