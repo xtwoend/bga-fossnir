@@ -28,4 +28,36 @@ class FossnirData extends Model
     protected array $casts = [
         'sample_date' => 'datetime'
     ];
+
+
+    public static function table($millId)
+    {
+        $model = new self;
+        $tableName = $model->getTable() . "_{$millId}";
+        
+        if(! Schema::hasTable($tableName)) {
+            Schema::create($tableName, function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->unsignedBigInteger('mill_id');
+                $table->datetime('sample_date');
+                $table->string('instrument_serial');
+                $table->string('product_name');
+                $table->float('owm', 5, 2)->default(NULL);
+                $table->float('vm', 5, 2)->default(NULL);
+                $table->float('odm', 5, 2)->default(NULL);
+                $table->float('nos', 5, 2)->default(NULL);
+                $table->datetimes();
+            });
+        }
+
+        return $model->setTable($tableName);
+    }
+
+    /**
+     * mill dir
+     */
+    public function mill() 
+    {
+        return $this->belongsTo(FossnirDir::class, 'mill_id');
+    }
 }
