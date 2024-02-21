@@ -71,13 +71,13 @@ class ReadCsvFileCommand extends HyperfCommand
                         if(strlen($row[2]) > 8){
                             $dateCombine = Carbon::createFromFormat('m/d/Y g:i:sA', $row[1].' '.$row[2]);
                         }else{
-                            $dateCombine = Carbon::createFromFormat('m/d/Y g:i:s', $row[1].' '.$row[2]);
+                            $dateCombine = Carbon::createFromFormat('m/d/Y H:i:s', $row[1].' '.$row[2]);
                         }
                     }elseif(preg_match($regex, $row[1])){
                         if(strlen($row[2]) > 8){
                             $dateCombine = Carbon::createFromFormat('d-M-y g:i:sA', $row[1].' '.$row[2]);
                         }else{
-                            $dateCombine = Carbon::createFromFormat('d-M-y g:i:s', $row[1].' '.$row[2]);
+                            $dateCombine = Carbon::createFromFormat('d-M-y H:i:s', $row[1].' '.$row[2]);
                         }
                     }else{
                         if(strlen($row[2]) > 8){
@@ -125,7 +125,8 @@ class ReadCsvFileCommand extends HyperfCommand
                     }
 
                 } catch (\Throwable $th) {
-                    continue;
+                    var_dump($th->getMessage());
+                    // continue;
                 }
             }
 
