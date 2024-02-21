@@ -130,7 +130,11 @@ class ReadCsvFileCommand extends HyperfCommand
             }
 
             if(! empty($data)) {
-                FossnirData::table($file->mill_id)->create($data);
+                try {
+                    FossnirData::table($file->mill_id)->create($data);
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
 
             if(! empty($csv)) {
