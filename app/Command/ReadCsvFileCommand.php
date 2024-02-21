@@ -7,6 +7,7 @@ namespace App\Command;
 use Carbon\Carbon;
 use App\Model\CSVRead;
 use App\Model\ResultFile;
+use App\Model\FossnirData;
 use Psr\Container\ContainerInterface;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -59,6 +60,8 @@ class ReadCsvFileCommand extends HyperfCommand
             $rows = array_map('str_getcsv', file($temp_file));
             $header = array_shift($rows);
             $csv = array();
+            
+            $data = [];
 
             foreach ($rows as $row) {
                 
@@ -86,7 +89,29 @@ class ReadCsvFileCommand extends HyperfCommand
                     
                     
                     if($dateCombine && $row[6] !== '' && $row[3] !== '') {
+
+
+                        $data['mill_id'] = $file->mill_id;
+                        $data['sample_date'] = date_format($dateCombine, 'Y-m-d H:i:s');
+                        $data['instrument_serial'] = $row[4];
+                        $data['product_name'] = $row[3];
                         
+                        if($row[5] == 'Oil/WM') {
+                            $data['owm'] = $row[6];
+                        }
+
+                        if($row[5] == 'VM') {
+                            $data['vm'] = $row[6];
+                        }
+
+                        if($row[5] == 'Oil/DM') {
+                            $data['odm'] = $row[6];
+                        }
+
+                        if($row[5] == 'NOS') {
+                            $data['nos'] = $row[6];
+                        }
+
                         $csv[] = [
                             'mill_id' => $file->mill_id,
                             'instrument_serial' => $row[4],
@@ -102,6 +127,10 @@ class ReadCsvFileCommand extends HyperfCommand
                 } catch (\Throwable $th) {
                     continue;
                 }
+            }
+
+            if(! empty($data)) {
+                FossnirData::table($file->mill_id)->create($data);
             }
 
             if(! empty($csv)) {
