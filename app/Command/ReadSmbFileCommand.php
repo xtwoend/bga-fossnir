@@ -74,7 +74,8 @@ class ReadSmbFileCommand extends HyperfCommand
                             'modified_at' => $file->getMTime(),
                             'filesize' => $file->getSize(),
                             'path' => $file->getPath(),
-                            'download_path' => $tempFile
+                            'download_path' => $tempFile,
+                            'processed' => 0
                         ]);
                         
                         // download

@@ -41,7 +41,7 @@ class ResultFile extends Model
             Schema::create($tableName, function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('mill_id')->nullable();
-                $table->string('filename');
+                $table->string('filename')->nullable();
                 $table->string('path')->index();
                 $table->string('download_path')->index();
                 $table->boolean('processed')->default(false);
