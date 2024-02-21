@@ -62,13 +62,13 @@ class ReadSmbFileCommand extends HyperfCommand
                 if(! $file->isDirectory()) {
                     $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
                     
-                    $count = ResultFile::table($dir->mill_id)->where('filename', $file->getName())
+                    $count = ResultFile::table($dir->id)->where('filename', $file->getName())
                         ->where('mill_id', $dir->id)
                         ->where('filesize', $file->getSize())
                         ->count();
 
                     if($count == 0) {
-                        ResultFile::table($dir->mill_id)->create([
+                        ResultFile::table($dir->id)->create([
                             'mill_id' => $dir->id,
                             'filename' => $file->getName(),
                             'modified_at' => $file->getMTime(),
