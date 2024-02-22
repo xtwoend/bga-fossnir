@@ -59,11 +59,11 @@ class DataController
                 $query = implode(" UNION ", $queries);
                 $data_results = Db::select($query);
 
-                $dColl = collect($data_results)->avg('result');
+                $avg = collect($data_results)->avg('result');
                 
                 $data[$dir->mill_name] = [
                     "threshold" => $threshold?->threshold,
-                    "today" => $dColl,
+                    "today" => $avg,
                     "data" => $data_results
                 ];
             }else{
