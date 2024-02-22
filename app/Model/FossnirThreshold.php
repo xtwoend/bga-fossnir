@@ -18,10 +18,26 @@ class FossnirThreshold extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected array $fillable = [];
+    protected array $fillable = [
+        'mill_id', 'group_id', 'threshold'
+    ];
 
     /**
      * The attributes that should be cast to native types.
      */
     protected array $casts = [];
+
+    /**
+     * Relation to mill
+     */
+    public function mill() {
+        return $this->belongsTo(FossnirDir::class, 'mill_id');
+    }
+
+    /**
+     * Relation to Fossnir Group
+     */
+    public function group() {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
 }

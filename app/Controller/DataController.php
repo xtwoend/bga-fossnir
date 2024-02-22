@@ -23,35 +23,34 @@ class DataController
     {
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));
         $groupId = $request->input('group_id', 4);
-        $resultName = 'owm';
+        $resultName = $request->input('parameter', 'owm');
+        $interval = 2;
+        $divinterval = intdiv(24, $interval);
 
+        // bedasarkan cutoff tiap jam 5 pagi
         $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
-        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
 
         $data = [];
-        $threshold = (float) 4.0;
         foreach(FossnirDir::all() as $dir){
-            $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->first();
+            $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
 
             $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
-            if($groups) {
+            
+            if(! empty($groups)) {
 
                 $inParams = implode("','", $groups);
                 $tableName = FossnirData::table($dir->id)->getTable();
 
                 // proses data dari jam 05 - 05 esok hari
                 $queries = [];
-                $interval = 2;
-                for($i = 0; $i<12; $i++) {
+                for($i = 0; $i < $divinterval; $i++) {
                     $cFrom = Carbon::parse($from)->addHour($interval * $i)->format('Y-m-d H:i:s');
                     $cTo = Carbon::parse($from)->addHour($interval * ($i + 1))->format('Y-m-d H:i:s');
                     $hour = Carbon::parse($cTo)->format('H:i');
-                    $queries[] = "SELECT 
-                                -- STR_TO_DATE('{$cFrom}', '%Y-%m-%d %H:%i:%s') as startdate, 
-                                -- STR_TO_DATE('{$cTo}', '%Y-%m-%d %H:%i:%s') as finishdate,
+                    $queries[] = "SELECT
                                 '{$hour}' as cycle_time,
                                 avg({$resultName}) as result
-                            FROM fossnir_data_8 
+                            FROM {$tableName} 
                             WHERE
                                 sample_date BETWEEN '{$cFrom}' AND '{$cTo}'
                             AND product_name in ('{$inParams}')";
@@ -59,7 +58,21 @@ class DataController
 
                 $query = implode(" UNION ", $queries);
                 $data_results = Db::select($query);
-
+                $data[$dir->mill_name] = [
+                    "threshold" => $threshold?->threshold,
+                    "data" => $data_results
+                ];
+            }else{
+                $data_results = [];
+                for($j = 0; $j < $divinterval; $j++) {
+                    $cFrom = Carbon::parse($from)->addHour($interval * $j)->format('Y-m-d H:i:s');
+                    $cTo = Carbon::parse($from)->addHour($interval * ($j + 1))->format('Y-m-d H:i:s');
+                    $hour = Carbon::parse($cTo)->format('H:i');
+                    $data_results[] = [
+                        'cycle_time' => $hour,
+                        'result' => null,
+                    ];
+                }
                 $data[$dir->mill_name] = [
                     "threshold" => $threshold?->threshold,
                     "data" => $data_results

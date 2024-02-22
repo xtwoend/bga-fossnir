@@ -15,6 +15,7 @@ class CreateFossnirThresholdTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('mill_id');
             $table->unsignedBigInteger('group_id');
+            $table->string('parameter', 20)->nullable();
             $table->float('threshold')->default(0);
             $table->datetimes();
         });
