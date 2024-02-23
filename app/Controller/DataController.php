@@ -125,7 +125,7 @@ class DataController
             $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
             $getLastDate = FossnirData::table($dir->id)
                 ->whereIn('product_name', $groups)
-                ->where('sample_date', '<', $to)
+                ->whereBetween('sample_date', [$from, $to])
                 ->orderBy('sample_date', 'desc')
                 ->first()?->sample_date;
 
