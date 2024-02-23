@@ -115,6 +115,8 @@ class DataController
         $groupId = $request->input('group_id', 4);
         $resultName = $request->input('parameter', 'owm');
         $interval = 2;
+
+        $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
         $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
        
         $data = [];
@@ -127,23 +129,59 @@ class DataController
                 ->orderBy('sample_date', 'desc')
                 ->first()?->sample_date;
 
+            // last
             $fromLastDate = Carbon::parse($getLastDate)->subHour($interval)->format('Y-m-d H:i:s');
             $last = FossnirData::table($dir->id)
                 ->whereIn('product_name', $groups)
                 ->whereBetween('sample_date', [$fromLastDate, $getLastDate])
                 ->avg($resultName);
 
+            // before last
+            $beforeLast = FossnirData::table($dir->id)
+                ->whereIn('product_name', $groups)
+                ->whereBetween('sample_date', [Carbon::parse($fromLastDate)->subHour($interval)->format('Y-m-d H:i:s'), $fromLastDate])
+                ->avg($resultName);
+
+            // result
+            $prs = [];
+            foreach($groups as $g) {
+                $pr = FossnirData::table($dir->id)
+                    ->select(Db::raw("count(*) as total, avg({$resultName}) as avg"))
+                    ->where('product_name', $g)
+                    ->whereBetween('sample_date', [$from, $to])
+                    ->groupBy('product_name')
+                    ->get()
+                    ->first();
+                
+                if($pr) {  
+                    $prs[] = $pr->toArray();
+                }
+            }
+            $collect = collect($prs);
+            $max = $collect->max('total') ?? 0;
+            
+            $tt = $collect->map(function($v) use ($interval) {
+                $v['sum'] = ($v['total'] * $interval) * $v['avg'];
+                $v['total_2'] = $v['total'] * $interval;
+                return $v;
+            })->all();
+
+            $total = collect($tt)->sum('sum');
+            $count = collect($tt)->sum('total_2');
+
+            $result = $count > 0 ? ($total / $count) : null;
+
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
                 'parameter' => $this->parameters[$resultName] ?: '',
-                'result' => 4.1,
-                'count' => 4,
+                'result' => $result,
+                'count' => $max,
                 'threshold' => $threshold?->threshold,
                 'last_result' => $last,
                 'last_time' => $getLastDate?->format('H:00'),
-                'before_last_result' => null,
-                'before_last_time' => null
+                'before_last_result' => $beforeLast,
+                'before_last_time' => $beforeLast? Carbon::parse($fromLastDate)->format('H:00') : null,
             ];
         }
 
