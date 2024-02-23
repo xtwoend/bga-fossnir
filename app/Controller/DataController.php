@@ -105,17 +105,35 @@ class DataController
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));
         $groupId = $request->input('group_id', 4);
         $resultName = $request->input('parameter', 'owm');
-
+        $interval = 2;
+        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
+       
         $data = [];
         foreach(FossnirDir::all() as $dir){
+            $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
+            $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
+            $getLastDate = FossnirData::table($dir->id)
+                ->whereIn('product_name', $groups)
+                ->where('sample_date', '<', $to)
+                ->orderBy('sample_date', 'desc')
+                ->first()?->sample_date;
+
+            $fromLastDate = Carbon::parse($getLastDate)->subHour($interval)->format('Y-m-d H:i:s');
+            $last = FossnirData::table($dir->id)
+                ->whereIn('product_name', $groups)
+                ->whereBetween('sample_date', [$fromLastDate, $getLastDate])
+                ->avg($resultName);
+
+            
+
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
                 'result' => 4.1,
                 'count' => 4,
-                'threshold' => 4.0,
-                'last_result' => 3.6,
-                'last_time' => '13:01',
+                'threshold' => $threshold?->threshold,
+                'last_result' => $last,
+                'last_time' => $getLastDate?->format('H:00'),
                 'before_last_result' => null,
                 'before_last_time' => null
             ];
