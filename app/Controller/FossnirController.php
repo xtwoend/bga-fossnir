@@ -142,7 +142,7 @@ class FossnirController
         return response($mills);
     }
 
-    #[RequestMapping(path: "daily", methods: "get")]
+    #[RequestMapping(path: "dailyc", methods: "get")]
     public function daily(RequestInterface $request)
     {
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));

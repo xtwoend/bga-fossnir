@@ -98,4 +98,29 @@ class DataController
         
         return response($data);
     }
+
+    #[RequestMapping(path: "/fossnir/daily", methods: "get")]
+    public function daily(RequestInterface $request)
+    {
+        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        $groupId = $request->input('group_id', 4);
+        $resultName = $request->input('parameter', 'owm');
+
+        $data = [];
+        foreach(FossnirDir::all() as $dir){
+            $data[] = [
+                'id' => $dir->id,
+                'mill' => $dir->mill_name,
+                'result' => 4.1,
+                'count' => 4,
+                'threshold' => 4.0,
+                'last_result' => 3.6,
+                'last_time' => '13:01',
+                'before_last_result' => null,
+                'before_last_time' => null
+            ];
+        }
+
+        return response($data);
+    }
 }
