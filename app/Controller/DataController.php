@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Carbon\Carbon;
+use App\Model\Group;
 use App\Model\FossnirDir;
 use App\Model\FossnirData;
 use App\Model\GroupProduct;
@@ -18,6 +19,14 @@ use Hyperf\HttpServer\Contract\ResponseInterface;
 #[Controller]
 class DataController
 {
+    #[RequestMapping(path: "/fossnir/stations", methods: "get")]
+    public function stations(RequestInterface $request)
+    {
+        $groups = Group::all();
+
+        return response($groups);
+    }
+
     #[RequestMapping(path: "/fossnir/data", methods: "get")]
     public function index(RequestInterface $request)
     {
@@ -61,7 +70,8 @@ class DataController
 
                 $avg = collect($data_results)->avg('result');
                 
-                $data[$dir->mill_name] = [
+                $data[] = [
+                    "mill" => $dir->mill_name,
                     "threshold" => $threshold?->threshold,
                     "today" => $avg,
                     "data" => $data_results
@@ -77,7 +87,8 @@ class DataController
                         'result' => null,
                     ];
                 }
-                $data[$dir->mill_name] = [
+                $data[] = [
+                    "mill" => $dir->mill_name,
                     "threshold" => $threshold?->threshold,
                     "today" => null,
                     "data" => $data_results
