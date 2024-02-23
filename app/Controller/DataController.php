@@ -19,6 +19,13 @@ use Hyperf\HttpServer\Contract\ResponseInterface;
 #[Controller]
 class DataController
 {
+    protected array $parameters = [
+        'owm' => 'Oil/WM',
+        'vm' => 'VM',
+        'odm' => 'Oil/DM',
+        'nos' => 'NOS'
+    ];
+
     #[RequestMapping(path: "/fossnir/stations", methods: "get")]
     public function stations(RequestInterface $request)
     {
@@ -72,6 +79,7 @@ class DataController
                 
                 $data[] = [
                     "mill" => $dir->mill_name,
+                    "parameter" => $this->parameters[$resultName] ?: '',
                     "threshold" => $threshold?->threshold,
                     "today" => $avg,
                     "data" => $data_results
@@ -89,6 +97,7 @@ class DataController
                 }
                 $data[] = [
                     "mill" => $dir->mill_name,
+                    "parameter" => $this->parameters[$resultName] ?: '',
                     "threshold" => $threshold?->threshold,
                     "today" => null,
                     "data" => $data_results
@@ -124,11 +133,10 @@ class DataController
                 ->whereBetween('sample_date', [$fromLastDate, $getLastDate])
                 ->avg($resultName);
 
-            
-
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
+                'parameter' => $this->parameters[$resultName] ?: '',
                 'result' => 4.1,
                 'count' => 4,
                 'threshold' => $threshold?->threshold,
