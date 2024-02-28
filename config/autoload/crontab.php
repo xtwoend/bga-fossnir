@@ -14,6 +14,12 @@ use Hyperf\Crontab\Crontab;
 return [
     'enable' => true,
     'crontab' => [
+
+        (new Crontab())->setType('command')->setName('FossnirDailyReportCommand')->setRule('*/30 * * * *')->setCallback([
+            'command' => 'fossnir:daily-save',
+            'date' => Carbon::now()->subDay()->format('Y-m-d'),
+            '--disable-event-dispatcher' => true,
+        ]),
         
         (new Crontab())->setType('command')->setName('FossnirCSVParser_01')->setRule('*/30 * * * *')->setCallback([
             'command' => 'fossnir:parse',
