@@ -90,7 +90,6 @@ class ReadCsvFileCommand extends HyperfCommand
                     
                     if($dateCombine && $row[6] !== '' && $row[3] !== '') {
 
-
                         $data['mill_id'] = $file->mill_id;
                         $data['sample_date'] = date_format($dateCombine, 'Y-m-d H:i:s');
                         $data['instrument_serial'] = $row[4];

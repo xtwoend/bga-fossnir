@@ -5,6 +5,15 @@ use Hyperf\Utils\Codec\Json;
 use Hyperf\Utils\ApplicationContext;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+if (! function_exists('dispatch')) {
+    function dispatch($event, int $priority = 1)
+    {   
+        $eventDispatcher = ApplicationContext::getContainer()->get(EventDispatcherInterface::class);
+        $eventDispatcher->dispatch($event, $priority);
+    }
+}
 
 
 if( ! function_exists('response')) {

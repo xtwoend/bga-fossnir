@@ -61,5 +61,5 @@ class FossnirData extends Model
     public function mill() 
     {
         return $this->belongsTo(FossnirDir::class, 'mill_id');
-    }
+    }   
 }

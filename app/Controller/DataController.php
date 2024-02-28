@@ -47,7 +47,7 @@ class DataController
         $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
 
         $data = [];
-        foreach(FossnirDir::all() as $dir){
+        foreach(FossnirDir::orderBy('order')->get() as $dir){
             $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
 
             $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
@@ -120,7 +120,7 @@ class DataController
         $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
        
         $data = [];
-        foreach(FossnirDir::all() as $dir){
+        foreach(FossnirDir::orderBy('order')->get() as $dir){
             $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
             $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
             $getLastDate = FossnirData::table($dir->id)
