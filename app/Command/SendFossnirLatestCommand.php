@@ -39,8 +39,8 @@ class SendFossnirLatestCommand extends HyperfCommand
 
     public function handle()
     {
-        $mill_id = $this->input->getArgument('mill_id');
         $inDays = 90;
+        $mill_id = $this->input->getArgument('mill_id');
         $date = $this->input->getArgument('date') ?? Carbon::now()->format('Y-m-d');
         
         $from = Carbon::parse($date)->subDays($inDays);

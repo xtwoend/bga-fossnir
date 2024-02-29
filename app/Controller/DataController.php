@@ -187,4 +187,14 @@ class DataController
 
         return response($data);
     }
+
+    #[RequestMapping(path: "/fossnir/grapic/monthly", methods: "get")]
+    public function graficMonthly(RequestInterface $request)
+    {
+        $now = Carbon::now();
+
+        $data = [];
+
+        return response($data);
+    }
 }
