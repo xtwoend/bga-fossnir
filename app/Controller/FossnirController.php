@@ -1,24 +1,30 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Controller;
 
-use Carbon\Carbon;
 use App\Model\CSVRead;
 use App\Model\FossnirDir;
-use Hyperf\DbConnection\Db;
 use App\Model\FossnirProduct;
 use App\Resource\FossnirDirResource;
+use Carbon\Carbon;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Contract\RequestInterface;
-use Hyperf\HttpServer\Contract\ResponseInterface;
 
-#[Controller(prefix: "/fossnir")]
+#[Controller(prefix: '/fossnir')]
 class FossnirController
 {
-    #[RequestMapping(path: "mill", methods: "get")]
+    #[RequestMapping(path: 'mill', methods: 'get')]
     public function index(RequestInterface $request)
     {
         $dirs = FossnirDir::paginate(10);
@@ -26,7 +32,7 @@ class FossnirController
         return response(FossnirDirResource::collection($dirs));
     }
 
-    #[RequestMapping(path: "mill/{id}", methods: "get")]
+    #[RequestMapping(path: 'mill/{id}', methods: 'get')]
     public function show($id, RequestInterface $request)
     {
         $dir = FossnirDir::find($id);
@@ -34,7 +40,7 @@ class FossnirController
         return response(new FossnirDirResource($dir));
     }
 
-    #[RequestMapping(path: "mill/{id}", methods: "put")]
+    #[RequestMapping(path: 'mill/{id}', methods: 'put')]
     public function update(RequestInterface $request)
     {
         $dir = FossnirDir::find($id);
@@ -44,19 +50,18 @@ class FossnirController
         return response(new FossnirDirResource($dir));
     }
 
-    #[RequestMapping(path: "mill/{id}", methods: "delete")]
+    #[RequestMapping(path: 'mill/{id}', methods: 'delete')]
     public function destroy(RequestInterface $request)
     {
         $dir = FossnirDir::find($id)->delete();
-        if($dir) {
+        if ($dir) {
             return response('success');
         }
 
         return response('failed');
     }
 
-
-    #[RequestMapping(path: "report/{id}", methods: "get")]
+    #[RequestMapping(path: 'report/{id}', methods: 'get')]
     public function report($id, RequestInterface $request)
     {
         $from = $request->input('from', Carbon::now()->subDay()->format('Y-m-d'));
@@ -65,30 +70,29 @@ class FossnirController
         $mill = FossnirDir::find($id);
 
         $data = [];
-        
-        if($product = $request->input('product', false))
-        {
-            $result = CSVRead::table($mill->id)
-                    ->select('id', 'sample_date', 'product_name', 'parameter', 'result')
-                    ->whereDate('sample_date', '>=', $from)
-                    ->whereDate('sample_date', '<=', $to)
-                    ->where('product_name', $product);
 
-            if($request->input('parameter', false)){
+        if ($product = $request->input('product', false)) {
+            $result = CSVRead::table($mill->id)
+                ->select('id', 'sample_date', 'product_name', 'parameter', 'result')
+                ->whereDate('sample_date', '>=', $from)
+                ->whereDate('sample_date', '<=', $to)
+                ->where('product_name', $product);
+
+            if ($request->input('parameter', false)) {
                 $result = $result->where('parameter', $request->input('parameter'));
             }
 
-            $result =  $result->latest()->get()->toArray();
+            $result = $result->latest()->get()->toArray();
 
             $grouped = collect($result)->groupBy('parameter');
-            
+
             $data = $grouped->all();
         }
-        
+
         return response($data);
     }
 
-    #[RequestMapping(path: "report/{id}/losses", methods: "get")]
+    #[RequestMapping(path: 'report/{id}/losses', methods: 'get')]
     public function reportParameter($id, RequestInterface $request)
     {
         $from = $request->input('from', Carbon::now()->subDay()->format('Y-m-d'));
@@ -97,15 +101,15 @@ class FossnirController
         $mill = FossnirDir::find($id);
 
         $data = [];
-        
+
         $result = CSVRead::table($mill->id)
-                    ->select('id', 'sample_date', 'instrument_serial', 'product_name', 'parameter', 'result')
-                    ->whereDate('sample_date', '>=', $from)
-                    ->whereDate('sample_date', '<=', $to)
-                    ->where('parameter', $parameter)
-                    ->orderBy('sample_date')
-                    ->get()
-                    ->toArray();
+            ->select('id', 'sample_date', 'instrument_serial', 'product_name', 'parameter', 'result')
+            ->whereDate('sample_date', '>=', $from)
+            ->whereDate('sample_date', '<=', $to)
+            ->where('parameter', $parameter)
+            ->orderBy('sample_date')
+            ->get()
+            ->toArray();
 
         $grouped = collect($result)->groupBy('product_name');
         $data = $grouped->all();
@@ -114,7 +118,7 @@ class FossnirController
         return response($data);
     }
 
-    #[RequestMapping(path: "products/{id}", methods: "get")]
+    #[RequestMapping(path: 'products/{id}', methods: 'get')]
     public function products($id, RequestInterface $request)
     {
         $from = $request->input('from', Carbon::now()->subDay()->format('Y-m-d'));
@@ -123,18 +127,18 @@ class FossnirController
         $mill = FossnirDir::find($id);
 
         $productNames = CSVRead::table($mill->id)
-                    ->select('product_name')
-                    ->whereDate('sample_date', '>=', $from)
-                    ->whereDate('sample_date', '<=', $to)
-                    ->groupBy('product_name')
-                    ->get();
+            ->select('product_name')
+            ->whereDate('sample_date', '>=', $from)
+            ->whereDate('sample_date', '<=', $to)
+            ->groupBy('product_name')
+            ->get();
 
         return response(
             $productNames->pluck('product_name')->toArray()
         );
     }
 
-    #[RequestMapping(path: "mills", methods: "get")]
+    #[RequestMapping(path: 'mills', methods: 'get')]
     public function mill(RequestInterface $request)
     {
         $mills = FossnirDir::orderBy('order')->get();
@@ -142,7 +146,7 @@ class FossnirController
         return response($mills);
     }
 
-    #[RequestMapping(path: "dailyc", methods: "get")]
+    #[RequestMapping(path: 'dailyc', methods: 'get')]
     public function daily(RequestInterface $request)
     {
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));
@@ -153,7 +157,7 @@ class FossnirController
             'Oil/WM' => 4,
             'VM' => 4,
             'Oil/DM' => 50,
-            'NOS' => 4
+            'NOS' => 4,
         ];
 
         $mill = FossnirDir::find($millId);
@@ -161,7 +165,7 @@ class FossnirController
         $to = Carbon::parse($date . ' 08:00:00')->addDay()->format('Y-m-d H:i:s');
 
         $data = [];
-        if($mill){
+        if ($mill) {
             $products = CSVRead::table($mill->id)
                 ->select('product_name')
                 ->whereBetween('sample_date', [$from, $to])
@@ -171,7 +175,7 @@ class FossnirController
                 ->get();
 
             $max = 5;
-            foreach($products as $product) {
+            foreach ($products as $product) {
                 $r = CSVRead::table($mill->id)
                     ->whereBetween('sample_date', [$from, $to])
                     ->where('parameter', $parameter)
@@ -196,8 +200,8 @@ class FossnirController
                 $data[] = [
                     'product_name' => $product->product_name,
                     'avg' => $avg->avg_result,
-                    'std_value' => $std?->std_value ?: ($paramters[$parameter] ?? 4.0) ,
-                    'data' => $r
+                    'std_value' => $std?->std_value ?: ($paramters[$parameter] ?? 4.0),
+                    'data' => $r,
                 ];
 
                 $max = ($max < count($r)) ? count($r) : $max;

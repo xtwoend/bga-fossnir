@@ -1,9 +1,18 @@
-<?php declare(strict_types=1);
+<?php
 
+declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 use Carbon\Carbon;
 use Hyperf\Crontab\Crontab;
 
-/**
+/*
  * This file is part of Hyperf.
  *
  * @link     https://www.hyperf.io
@@ -15,13 +24,12 @@ use Hyperf\Crontab\Crontab;
 return [
     'enable' => true,
     'crontab' => [
-
         (new Crontab())->setType('command')->setName('FossnirDailyReportCommand')->setRule('*/30 * * * *')->setCallback([
             'command' => 'fossnir:daily-save',
             'date' => Carbon::now()->subDay()->format('Y-m-d'),
             '--disable-event-dispatcher' => true,
         ]),
-        
+
         (new Crontab())->setType('command')->setName('FossnirCSVParser_01')->setRule('*/30 * * * *')->setCallback([
             'command' => 'fossnir:parse',
             'mill_id' => 1,

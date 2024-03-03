@@ -1,13 +1,19 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Model;
 
 use Hyperf\DbConnection\Model\Model;
 
-/**
- */
 class FossnirDir extends Model
 {
     /**
@@ -19,7 +25,7 @@ class FossnirDir extends Model
      * The attributes that are mass assignable.
      */
     protected array $fillable = [
-        'mill_name', 'dir_path', 'auto_read'
+        'mill_name', 'dir_path', 'auto_read',
     ];
 
     /**
@@ -27,8 +33,8 @@ class FossnirDir extends Model
      */
     protected array $casts = [];
 
-
-    public function products() {
+    public function products()
+    {
         return $this->hasMany(FossnirProduct::class, 'mill_id');
     }
 }

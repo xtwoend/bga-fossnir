@@ -1,14 +1,22 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Listener;
 
 use App\Model\FossnirData;
-use Hyperf\Event\Annotation\Listener;
-use Psr\Container\ContainerInterface;
 use Hyperf\Database\Model\Events\Created;
+use Hyperf\Event\Annotation\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
+use Psr\Container\ContainerInterface;
 
 #[Listener]
 class FossnirDailyReport implements ListenerInterface
@@ -20,16 +28,14 @@ class FossnirDailyReport implements ListenerInterface
     public function listen(): array
     {
         return [
-            Created::class
+            Created::class,
         ];
     }
 
     public function process(object $event): void
     {
         $model = $event->getModel();
-        if($model instanceof FossnirData)
-        {
-            // 
+        if ($model instanceof FossnirData) {
         }
     }
 }

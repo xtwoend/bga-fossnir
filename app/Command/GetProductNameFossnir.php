@@ -1,15 +1,23 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Command;
 
 use App\Model\CSVRead;
 use App\Model\FossnirDir;
 use App\Model\FossnirProduct;
-use Psr\Container\ContainerInterface;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
+use Psr\Container\ContainerInterface;
 
 #[Command]
 class GetProductNameFossnir extends HyperfCommand
@@ -27,18 +35,18 @@ class GetProductNameFossnir extends HyperfCommand
 
     public function handle()
     {
-        foreach(FossnirDir::all() as $mill) {
+        foreach (FossnirDir::all() as $mill) {
             $products = CSVRead::table($mill->id)
                 ->select('product_name', 'parameter')
                 ->groupBy('product_name')
                 ->groupBy('parameter')
                 ->get();
-                
-            foreach($products as $product) {
+
+            foreach ($products as $product) {
                 FossnirProduct::updateOrCreate([
                     'product_name' => $product->product_name,
                     'parameter' => $product->parameter,
-                    'mill_id' => $mill->id
+                    'mill_id' => $mill->id,
                 ], []);
             }
         }

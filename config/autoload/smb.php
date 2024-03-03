@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
+use Icewind\SMB\IOptions;
+
 return [
     'workgroup' => 'workgroup',
     'host' => env('SMB_HOST'),
@@ -7,7 +18,7 @@ return [
     'username' => env('SMB_USERNAME'),
     'password' => env('SMB_PASSWORD'),
 
-    'smb_version_min' => \Icewind\SMB\IOptions::PROTOCOL_SMB2,
-    'smb_version_max' => \Icewind\SMB\IOptions::PROTOCOL_SMB3,
+    'smb_version_min' => IOptions::PROTOCOL_SMB2,
+    'smb_version_max' => IOptions::PROTOCOL_SMB3,
     'timeout' => 3600,
 ];

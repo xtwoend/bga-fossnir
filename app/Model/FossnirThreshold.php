@@ -1,13 +1,19 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Model;
 
 use Hyperf\DbConnection\Model\Model;
 
-/**
- */
 class FossnirThreshold extends Model
 {
     /**
@@ -19,7 +25,7 @@ class FossnirThreshold extends Model
      * The attributes that are mass assignable.
      */
     protected array $fillable = [
-        'mill_id', 'group_id', 'threshold'
+        'mill_id', 'group_id', 'threshold',
     ];
 
     /**
@@ -28,16 +34,18 @@ class FossnirThreshold extends Model
     protected array $casts = [];
 
     /**
-     * Relation to mill
+     * Relation to mill.
      */
-    public function mill() {
+    public function mill()
+    {
         return $this->belongsTo(FossnirDir::class, 'mill_id');
     }
 
     /**
-     * Relation to Fossnir Group
+     * Relation to Fossnir Group.
      */
-    public function group() {
+    public function group()
+    {
         return $this->belongsTo(Group::class, 'group_id');
     }
 }
