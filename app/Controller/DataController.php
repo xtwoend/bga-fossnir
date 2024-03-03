@@ -83,11 +83,13 @@ class DataController
                 $data_results = Db::select($query);
 
                 $avg = collect($data_results)->avg('result');
+                $total_sample = collect($data_results)->sum('count_file');
 
                 $data[] = [
                     'mill' => $dir->mill_name,
                     'parameter' => $this->parameters[$resultName] ?: '',
                     'threshold' => $threshold?->threshold,
+                    'total_sample' => $total_sample,
                     'today' => $avg,
                     'data' => $data_results,
                 ];
@@ -166,7 +168,7 @@ class DataController
                 }
             }
             $collect = collect($prs);
-            $max = $collect->max('total') ?? 0;
+            $total_sample = $collect->sum('total') ?? 0;
 
             $tt = $collect->map(function ($v) use ($interval) {
                 $v['sum'] = ($v['total'] * $interval) * $v['avg'];
@@ -184,7 +186,7 @@ class DataController
                 'mill' => $dir->mill_name,
                 'parameter' => $this->parameters[$resultName] ?: '',
                 'result' => $result,
-                'count' => $max,
+                'count' => $total_sample,
                 'threshold' => $threshold?->threshold,
                 'last_result' => $last,
                 'last_time' => $getLastDate?->format('H:00'),
