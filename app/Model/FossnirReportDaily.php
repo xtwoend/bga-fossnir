@@ -32,6 +32,6 @@ class FossnirReportDaily extends Model
      * The attributes that should be cast to native types.
      */
     protected array $casts = [
-        'sample_date' => 'date',
+        'sample_date' => 'date:Y-m-d',
     ];
 }
