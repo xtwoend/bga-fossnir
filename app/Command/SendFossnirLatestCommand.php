@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use Carbon\Carbon;
 use App\Model\CSVRead;
 use App\Model\FossnirDir;
-use App\Model\FossnirProduct;
-use Carbon\Carbon;
-use Hyperf\Command\Annotation\Command;
-use Hyperf\Command\Command as HyperfCommand;
+use App\Model\FossnirData;
 use Hyperf\Stringable\Str;
-use PhpMqtt\Client\ConnectionSettings;
+use App\Model\FossnirProduct;
 use PhpMqtt\Client\MqttClient;
 use Psr\Container\ContainerInterface;
+use Hyperf\Command\Annotation\Command;
+use PhpMqtt\Client\ConnectionSettings;
+use Hyperf\Command\Command as HyperfCommand;
 use Symfony\Component\Console\Input\InputArgument;
 
 #[Command]
@@ -40,34 +41,20 @@ class SendFossnirLatestCommand extends HyperfCommand
 
     public function handle()
     {
-        $inDays = 90;
         $mill_id = $this->input->getArgument('mill_id');
         $date = $this->input->getArgument('date') ?? Carbon::now()->format('Y-m-d');
 
-        $from = Carbon::parse($date)->subDays($inDays);
-        $to = Carbon::parse($date);
-
+       
         if ($mill_id) {
             $mill = FossnirDir::find($mill_id);
-            $products = FossnirProduct::where('mill_id', $mill_id)->get();
-            $data = [];
-            foreach ($products as $product) {
-                $latest = CSVRead::table($mill->id)
-                    ->whereDate('sample_date', '>=', $from)
-                    ->whereDate('sample_date', '<=', $to)
-                    ->where('product_name', $product->product_name)
-                    ->where('parameter', $product->parameter)
-                    ->latest()
-                    ->first();
-
-                if ($latest) {
-                    $data[$product->product_name][$product->parameter] = [
-                        'date' => $latest->sample_date->format('Y-m-d H:i:s'),
-                        'result' => $latest->result,
-                    ];
+            $products = FossnirData::table($mill_id)->select('product_name')->groupBy('product_name')->pluck('product_name')->toArray();
+            $data =  [];
+            foreach($products as $product){
+                $latest = FossnirData::table($mill_id)->where('product_name', $product)->orderBy('sample_date', 'desc')->first();
+                if($latest) {
+                    $data[$product] = $latest->toArray();
                 }
             }
-
             $this->send('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
             if ((bool) env('APP_DEBUG', false)) {
                 $this->send2('data/bga/fossnir/' . strtolower($mill->mill_name), $data);

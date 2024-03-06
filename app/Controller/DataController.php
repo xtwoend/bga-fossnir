@@ -83,10 +83,13 @@ class DataController
 
                 $query = implode(' UNION ', $queries);
                 $data_results = Db::select($query);
-
+    
                 // $avg = collect($data_results)->avg('result');
-                $total_sample = collect($data_results)->sum('count_file');
-
+                $count_file = collect($data_results)->sum('count_file');
+                $count_sample = collect($data_results)->filter(function($v) {
+                    return $v->result !== null;
+                });
+                $sample_count = count($count_sample);
 
                 // result
                 $prs = [];
@@ -121,7 +124,7 @@ class DataController
                     'mill' => $dir->mill_name,
                     'parameter' => $this->parameters[$resultName] ?: '',
                     'threshold' => $threshold?->threshold,
-                    'total_sample' => $total_sample,
+                    'total_sample' => $sample_count,
                     'today' => $result,
                     'data' => $data_results,
                 ];
@@ -141,6 +144,7 @@ class DataController
                     'mill' => $dir->mill_name,
                     'parameter' => $this->parameters[$resultName] ?: '',
                     'threshold' => $threshold?->threshold,
+                    'total_sample' => 0,
                     'today' => null,
                     'data' => $data_results,
                 ];
@@ -191,8 +195,9 @@ class DataController
             $query = implode(' UNION ', $queries);
             $data_results = Db::select($query);
             $data_fil = array_filter($data_results, function($v) {
-                return ! is_null($v->result);
+                return $v->result !== null;
             });
+            $count_sample = count($data_fil);
             $coll = collect($data_fil)->sortByDesc('sample_date');
             $last = $coll->shift();
             // var_dump($last);
@@ -232,7 +237,7 @@ class DataController
                 'mill' => $dir->mill_name,
                 'parameter' => $this->parameters[$resultName] ?: '',
                 'result' => $result,
-                'count' => $total_sample,
+                'count' => $count_sample,
                 'threshold' => $threshold?->threshold,
                 'last_result' => $last ? $last->result : null,
                 'last_time' => $last ? $last->cycle_time : null,
@@ -268,4 +273,64 @@ class DataController
             'start_date' => $from
         ]);
     }
+
+    #[RequestMapping(path: '/fossnir/score', methods: 'get')]
+    public function score(RequestInterface $request)
+    {
+        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        $groupId = $request->input('group_id', 4);
+        $resultName = $request->input('parameter', 'owm');
+        $interval = 2;
+        $divinterval = intdiv(24, $interval);
+
+        $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
+        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
+
+        $data = [];
+        foreach (FossnirDir::orderBy('order')->get() as $dir) {
+            $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
+            $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
+            
+            // last & before last
+            $inParams = implode("','", $groups);
+            $tableName = FossnirData::table($dir->id)->getTable();
+
+            // proses data dari jam 05 - 05 esok hari
+            $queries = [];
+            for ($i = 0; $i < $divinterval; ++$i) {
+                $cFrom = Carbon::parse($from)->addHour($interval * $i)->format('Y-m-d H:i:s');
+                $cTo = Carbon::parse($from)->addHour($interval * ($i + 1))->format('Y-m-d H:i:s');
+                $hour = Carbon::parse($cTo)->format('H:i');
+                $queries[] = "SELECT
+                            '{$hour}' as cycle_time,
+                            count({$resultName}) as count_file,
+                            avg({$resultName}) as result,
+                            max(sample_date) as sample_date
+                        FROM {$tableName} 
+                        WHERE
+                            sample_date BETWEEN '{$cFrom}' AND '{$cTo}'
+                        AND product_name in ('{$inParams}')";
+            }
+
+            $query = implode(' UNION ', $queries);
+            $data_results = Db::select($query);
+            $data_fil = array_filter($data_results, function($v) {
+                return $v->result !== null;
+            });
+            $count_sample = count($data_fil);
+            
+            $sample_ok = collect($data_fil)->filter(function($u) use ($threshold) {
+                return $u->result <= $threshold?->threshold;
+            })->count();
+
+            $data[] = [
+                'id' => $dir->id,
+                'mill' => $dir->mill_name,
+                'score' => $count_sample > 0 ? ($sample_ok / $count_sample) * 100 : 0,
+            ];
+        }
+
+        return response($data);
+    }
+
 }
