@@ -141,7 +141,8 @@ class FossnirController
     #[RequestMapping(path: 'mills', methods: 'get')]
     public function mill(RequestInterface $request)
     {
-        $mills = FossnirDir::orderBy('order')->get();
+        $mills = FossnirDir::select('id', 'mill_name', 'order')->orderBy('order')->get();
+        $mills->push(['id' => 999, 'mill_name' => 'ALL MILL', 'order' => 0]);
 
         return response($mills);
     }

@@ -39,7 +39,7 @@ class DataController
     public function stations(RequestInterface $request)
     {
         $groups = Group::all();
-
+    
         return response($groups);
     }
 
@@ -51,6 +51,12 @@ class DataController
         $resultName = $request->input('parameter', 'owm');
         $interval = 2;
         $divinterval = intdiv(24, $interval);
+        
+        $mill_id = $request->input('mill_id');
+       
+        if($mill_id && $mill_id !== '999') {
+            return $this->dataInMachine($request);
+        }
 
         // bedasarkan cutoff tiap jam 5 pagi
         $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
@@ -129,6 +135,47 @@ class DataController
         }
 
         return response($data);
+    }
+
+    private function dataInMachine(RequestInterface $request)
+    {
+        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        $groupId = $request->input('group_id', 4);
+        $resultName = $request->input('parameter', 'owm');
+        $mill_id = $request->input('mill_id');
+
+        // bedasarkan cutoff tiap jam 5 pagi
+        $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
+        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
+        
+        $threshold = FossnirThreshold::where('mill_id', $mill_id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
+        $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $mill_id)->get()->pluck('product_name')->toArray();
+        $data = FossnirData::table($mill_id)
+            ->whereBetween('sample_date', [$from, $to])
+            ->whereIn('product_name', $groups)
+            ->orderBy('sample_date', 'asc')
+            ->get();
+        $data->map(function($r) use ($threshold) {
+            $r['threshold'] = $threshold?->threshold;
+            return $r;
+        });
+        $data = $data->sortBy('sample_date')->groupBy('product_name');
+        $data = $data->all();
+
+        $arr = [];
+        $max = 0;
+        foreach($data as $r => $v) {
+            $max = $max < count($v) ? count($v): $max;
+            $c = collect($v);
+            $arr[] = [
+                'product_name' => $r,
+                'threshold' => $threshold?->threshold,
+                'avg' => $c->sum($resultName) / count($v),
+                'data' => $v
+            ];
+        }
+
+        return response($arr, 0, ['max' => $max]);
     }
 
     #[RequestMapping(path: '/fossnir/daily', methods: 'get')]
