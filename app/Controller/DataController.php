@@ -235,11 +235,6 @@ class DataController
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));
 
         $resultName = $request->input('parameter', 'owm');
-        $interval = 2;
-        $divinterval = intdiv(24, $interval);
-
-        $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
-        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
         $sc = "score_{$resultName}";
 
         $data = [];
@@ -258,6 +253,42 @@ class DataController
         }
 
         return response($data);
+    }
+
+
+    #[RequestMapping(path: '/fossnir/total-score', methods: 'get')]
+    public function scoreAll(RequestInterface $request)
+    {
+        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+
+        $resultName = $request->input('parameter', 'owm');
+        $sc = "score_{$resultName}";
+
+        $data = [];
+        foreach (FossnirDir::orderBy('order')->get() as $dir) {
+            $result = FossnirScore::table($dir->id)
+                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                ->where('sample_date', $date)
+                ->first();
+
+            $data[] = [
+                'id' => $dir->id,
+                'mill' => $dir->mill_name,
+                'result' => $result->result,
+                'count' => $result->count
+            ];
+        }
+
+        $collection = collect($data);
+        $result = $collection->sum('result');
+        $count = $collection->sum('count');
+
+        $score  = $count > 0 ? $result / $count : 0;
+        $score  = (int) ($score * 100);
+
+        return response([
+            'score' => $score,
+        ]);
     }
 
 }
