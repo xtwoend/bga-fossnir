@@ -12,15 +12,16 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Model\CSVRead;
-use App\Model\FossnirData;
-use App\Model\ResultFile;
+use Throwable;
 use Carbon\Carbon;
+use App\Model\CSVRead;
+use App\Model\ResultFile;
+use App\Model\FossnirData;
+use App\Event\NewFossnirData;
+use Psr\Container\ContainerInterface;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Throwable;
 
 #[Command]
 class ReadCsvFileCommand extends HyperfCommand
@@ -117,30 +118,19 @@ class ReadCsvFileCommand extends HyperfCommand
                         if ($row[5] == 'NOS') {
                             $data['nos'] = $row[6];
                         }
-
-                        $csv[] = [
-                            'mill_id' => $file->mill_id,
-                            'instrument_serial' => $row[4],
-                            'product_name' => $row[3],
-                            'parameter' => $row[5],
-                            'result' => $row[6],
-                            'sample_date' => date_format($dateCombine, 'Y-m-d H:i:s'),
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
-                        ];
                     }
                 } catch (Throwable $th) {
-                    var_dump($th->getMessage());
-                    // continue;
+                    continue;
                 }
             }
 
             if (! empty($data) && isset($data['owm'], $data['vm'], $data['odm'], $data['nos'])) {
-                FossnirData::table($file->mill_id)->create($data);
+                $fossnir_data = FossnirData::table($file->mill_id)->create($data);
+                \dispatch(new NewFossnirData($fossnir_data));
             }
 
             if (! empty($csv)) {
-                CSVRead::table($file->mill_id)->insert($csv);
+                // CSVRead::table($file->mill_id)->insert($csv);
                 $file->update(['processed' => 1]);
                 unlink($temp_file);
             }
