@@ -30,6 +30,7 @@ class DailyScoreFossnirCommand extends HyperfCommand
     {
         return [
             ['date', InputArgument::OPTIONAL, 'date'],
+            ['mill_id', InputArgument::OPTIONAL, 'mill_id'],
         ];
     }
 
@@ -38,12 +39,20 @@ class DailyScoreFossnirCommand extends HyperfCommand
         $this->line('Hello Hyperf!', 'info');
 
         $date = $this->input->getArgument('date');
+        $millId = $this->input->getArgument('mill_id', null);
 
-        $dirs = FossnirDir::orderBy('order')->get();
-        foreach($dirs as $mill) {
-            $rows = FossnirData::table($mill->id)->where('sample_date', '>=', $date)->get();
+        if($millId) {
+            $rows = FossnirData::table($millId)->where('sample_date', '>=', $date)->get();
             foreach($rows as $row) {
                 \dispatch(new NewFossnirData($row));
+            }
+        }else{
+            $dirs = FossnirDir::orderBy('order')->get();
+            foreach($dirs as $mill) {
+                $rows = FossnirData::table($mill->id)->where('sample_date', '>=', $date)->get();
+                foreach($rows as $row) {
+                    \dispatch(new NewFossnirData($row));
+                }
             }
         }
     }
