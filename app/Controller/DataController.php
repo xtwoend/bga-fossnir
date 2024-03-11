@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Model\Group;
 use App\Model\FossnirDir;
 use App\Model\FossnirData;
+use App\Model\FossnirScore;
 use App\Model\GroupProduct;
 use Hyperf\DbConnection\Db;
 use App\Model\FossnirThreshold;
@@ -83,49 +84,25 @@ class DataController
 
                 $query = implode(' UNION ', $queries);
                 $data_results = Db::select($query);
-    
-                // $avg = collect($data_results)->avg('result');
-                $count_file = collect($data_results)->sum('count_file');
+                
                 $count_sample = collect($data_results)->filter(function($v) {
                     return $v->result !== null;
                 });
                 $sample_count = count($count_sample);
 
-                // result
-                $prs = [];
-                foreach ($groups as $g) {
-                    $pr = FossnirData::table($dir->id)
-                        ->select(Db::raw("count(*) as total, avg({$resultName}) as avg"))
-                        ->where('product_name', $g)
-                        ->whereBetween('sample_date', [$from, $to])
-                        ->groupBy('product_name')
-                        ->get()
-                        ->first();
-
-                    if ($pr) {
-                        $prs[] = $pr->toArray();
-                    }
-                }
-                $collect = collect($prs);
-                $total_sample = $collect->sum('total') ?? 0;
-
-                $tt = $collect->map(function ($v) use ($interval) {
-                    $v['sum'] = ($v['total'] * $interval) * $v['avg'];
-                    $v['total_2'] = $v['total'] * $interval;
-                    return $v;
-                })->all();
-
-                $total = collect($tt)->sum('sum');
-                $count = collect($tt)->sum('total_2');
-
-                $result = $count > 0 ? ($total / $count) : null;
+                // result today
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$resultName}`) as result, sum(`sample_count`) as count"))
+                    ->where('sample_date', $date)
+                    ->whereIn('product_name', $groups)
+                    ->first();
 
                 $data[] = [
                     'mill' => $dir->mill_name,
                     'parameter' => $this->parameters[$resultName] ?: '',
                     'threshold' => $threshold?->threshold,
                     'total_sample' => $sample_count,
-                    'today' => $result,
+                    'today' => ($result->count > 0) ? $result->result / $result->count : null,
                     'data' => $data_results,
                 ];
             } else {
@@ -203,40 +180,18 @@ class DataController
             // var_dump($last);
             $before_last = collect($coll->all())->first();
 
-            // result
-            $prs = [];
-            foreach ($groups as $g) {
-                $pr = FossnirData::table($dir->id)
-                    ->select(Db::raw("count(*) as total, avg({$resultName}) as avg"))
-                    ->where('product_name', $g)
-                    ->whereBetween('sample_date', [$from, $to])
-                    ->groupBy('product_name')
-                    ->get()
-                    ->first();
-
-                if ($pr) {
-                    $prs[] = $pr->toArray();
-                }
-            }
-            $collect = collect($prs);
-            $total_sample = $collect->sum('total') ?? 0;
-
-            $tt = $collect->map(function ($v) use ($interval) {
-                $v['sum'] = ($v['total'] * $interval) * $v['avg'];
-                $v['total_2'] = $v['total'] * $interval;
-                return $v;
-            })->all();
-
-            $total = collect($tt)->sum('sum');
-            $count = collect($tt)->sum('total_2');
-
-            $result = $count > 0 ? ($total / $count) : null;
+            // result today
+            $result = FossnirScore::table($dir->id)
+                ->select(Db::raw("sum(`{$resultName}`) as result, sum(`sample_count`) as count"))
+                ->where('sample_date', $date)
+                ->whereIn('product_name', $groups)
+                ->first();
 
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
                 'parameter' => $this->parameters[$resultName] ?: '',
-                'result' => $result,
+                'result' => ($result->count > 0) ? $result->result / $result->count : null,
                 'count' => $count_sample,
                 'threshold' => $threshold?->threshold,
                 'last_result' => $last ? $last->result : null,
@@ -278,55 +233,27 @@ class DataController
     public function score(RequestInterface $request)
     {
         $date = $request->input('date', Carbon::now()->format('Y-m-d'));
-        $groupId = $request->input('group_id', 4);
+
         $resultName = $request->input('parameter', 'owm');
         $interval = 2;
         $divinterval = intdiv(24, $interval);
 
         $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
         $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
+        $sc = "score_{$resultName}";
 
         $data = [];
         foreach (FossnirDir::orderBy('order')->get() as $dir) {
-            $threshold = FossnirThreshold::where('mill_id', $dir->id)->where('group_id', $groupId)->where('parameter', $resultName)->first();
-            $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $dir->id)->get()->pluck('product_name')->toArray();
-            
-            // last & before last
-            $inParams = implode("','", $groups);
-            $tableName = FossnirData::table($dir->id)->getTable();
-
-            // proses data dari jam 05 - 05 esok hari
-            $queries = [];
-            for ($i = 0; $i < $divinterval; ++$i) {
-                $cFrom = Carbon::parse($from)->addHour($interval * $i)->format('Y-m-d H:i:s');
-                $cTo = Carbon::parse($from)->addHour($interval * ($i + 1))->format('Y-m-d H:i:s');
-                $hour = Carbon::parse($cTo)->format('H:i');
-                $queries[] = "SELECT
-                            '{$hour}' as cycle_time,
-                            count({$resultName}) as count_file,
-                            avg({$resultName}) as result,
-                            max(sample_date) as sample_date
-                        FROM {$tableName} 
-                        WHERE
-                            sample_date BETWEEN '{$cFrom}' AND '{$cTo}'
-                        AND product_name in ('{$inParams}')";
-            }
-
-            $query = implode(' UNION ', $queries);
-            $data_results = Db::select($query);
-            $data_fil = array_filter($data_results, function($v) {
-                return $v->result !== null;
-            });
-            $count_sample = count($data_fil);
-            
-            $sample_ok = collect($data_fil)->filter(function($u) use ($threshold) {
-                return $u->result <= $threshold?->threshold;
-            })->count();
+            // result today
+            $result = FossnirScore::table($dir->id)
+                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                ->where('sample_date', $date)
+                ->first();
 
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
-                'score' => $count_sample > 0 ? ($sample_ok / $count_sample) * 100 : 0,
+                'score' => ($result->count > 0) ? ($result->result / $result->count) * 100 : 0,
             ];
         }
 
