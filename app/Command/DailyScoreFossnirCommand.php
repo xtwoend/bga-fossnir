@@ -36,12 +36,12 @@ class DailyScoreFossnirCommand extends HyperfCommand
 
     public function handle()
     {
-        $this->line('Hello Hyperf!', 'info');
-
+        
         $date = $this->input->getArgument('date');
         $millId = $this->input->getArgument('mill_id', null);
 
         if($millId) {
+            $this->line('Processed mill' . $millId, 'info');
             $rows = FossnirData::table($millId)->where('sample_date', '>=', $date)->get();
             foreach($rows as $row) {
                 \dispatch(new NewFossnirData($row));
