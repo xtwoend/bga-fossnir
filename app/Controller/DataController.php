@@ -224,7 +224,6 @@ class DataController
             $count_sample = count($data_fil);
             $coll = collect($data_fil)->sortByDesc('sample_date');
             $last = $coll->shift();
-            // var_dump($last);
             $before_last = collect($coll->all())->first();
 
             // result today
@@ -269,6 +268,35 @@ class DataController
             ->whereBetween('sample_date', [$from, $to])
             ->get();
         
+        return response($data, 0, [
+            'threshold' => $threshold?->threshold,
+            'parameter' => $resultName,
+            'start_date' => $from
+        ]);
+    }
+
+    #[RequestMapping(path: '/fossnir/grapic/yearly', methods: 'get')]
+    public function graficYearly(RequestInterface $request)
+    {
+        $date = $request->input('date', null);
+        $millId = $request->input('mill_id', 1);
+        $group_id = $request->input('group_id', 4);
+        $resultName = $request->input('parameter', 'owm');
+
+        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $group_id)->where('parameter', $resultName)->first();
+
+        $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1) : Carbon::now();
+        $from = $date->copy()->startOfYear();
+        $to   = $date->copy()->endOfYear();
+
+        $countName = "score_{$resultName}";
+        $data = FossnirScore::table($millId)
+            ->select(Db::raw("sum(`{$resultName}`) as result, sum(`{$countName}`) as count"))
+            ->whereBetween('sample_date', [$from, $to])
+            ->whereIn('product_name', $groups)
+            ->get();
+
+
         return response($data, 0, [
             'threshold' => $threshold?->threshold,
             'parameter' => $resultName,
@@ -338,4 +366,42 @@ class DataController
         ]);
     }
 
+    #[RequestMapping(path: '/fossnir/score-mill', methods: 'get')]
+    public function scoreMill(RequestInterface $request)
+    {
+        $resultName = $request->input('parameter', 'owm');
+        $sc = "score_{$resultName}";
+        
+        $millId = $request->input('mill_id');
+        $type = $request->input('type');
+        $pDate = $request->input('date', null);
+
+        $date = $pDate ? Carbon::parse($pDate): Carbon::now();
+
+        $from = $date->copy()->format('Y-m-d');
+        $to = $date->copy()->format('Y-m-d');
+  
+        if($type == 'month'){
+            $from = $date->copy()->startOfMonth()->format('Y-m-d');
+            $to = $date->copy()->endOfMonth()->format('Y-m-d H:i:s');
+        }
+
+        if($type == 'year'){
+            $from = $date->copy()->firstOfYear()->format('Y-m-d');
+            $to = $date->copy()->endOfYear()->format('Y-m-d');
+        }
+
+       
+        // result today
+        $result = FossnirScore::table($millId)
+            ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+            ->whereBetween('sample_date', [$from, $to])
+            ->first();
+
+        $data = [
+            'score' => ($result->count > 0) ? ($result->result / $result->count) * 100 : 0,
+        ];
+
+        return response($data);
+    }
 }
