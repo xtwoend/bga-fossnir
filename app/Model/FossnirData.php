@@ -80,7 +80,8 @@ class FossnirData extends Model
         $model = $event->getModel();
 
         if($model->owm > 4) {
-            $users = \App\Model\TelegramUser::all();
+            $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
+
             $t = make(\App\Service\Telegram::class);
             foreach($users as $user) {
                 $t->send($user->chat_id, "[{$model->sample_date}] {$model->product_name}, {$model->mill->mill_name}, {$model->owm}");
