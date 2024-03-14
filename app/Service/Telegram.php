@@ -101,7 +101,7 @@ class Telegram
 
                             $this->bot->sendMessage([
                                 'chat_id' => $chat->id,
-                                'text' => 'Notifikasi telah aktif',
+                                'text' => 'Notifikasi telah di aktifkan',
                                 'reply_markup' => json_encode([
                                     'inline_keyboard' => [
                                         [
