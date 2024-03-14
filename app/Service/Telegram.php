@@ -47,7 +47,7 @@ class Telegram
                                 'inline_keyboard' => [
                                     [
                                         [
-                                            'text' => $text, 'callback_data' => 'notif'
+                                            'text' => $text, 'callback_data' => 'mill'
                                         ]
                                     ]
                                 ]
@@ -74,7 +74,17 @@ class Telegram
                     $message = $update->callback_query;
                     $chat = $update->callback_query->message->chat;
                     
-                    if($message->data == 'notif') {
+                    if($message->data == 'mill') {
+                        $mills_button = [];
+                        foreach(FossnirDir::oderBy('order')->get() as $mill) {
+                            $mills_button = [
+                                'text' => $mill->mill_name,
+                                'callback_data' => (int) $mill->id,
+                            ];
+                        }
+                    }
+                    
+                    if(is_numeric($message->data)) {
                         $exists = TelegramUser::where('chat_id', $chat->id)->count();
                         if($exists > 0) {
                             TelegramUser::where('chat_id', $chat->id)->delete();
@@ -85,7 +95,7 @@ class Telegram
                                     'inline_keyboard' => [
                                         [
                                             [
-                                                'text' => 'Aktifkan Notifikasi', 'callback_data' => 'notif'
+                                                'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
                                             ]
                                         ]
                                     ]
@@ -96,7 +106,8 @@ class Telegram
                                 'chat_id' => $chat->id,
                                 'first_name' => $chat->first_name,
                                 'last_name' => $chat->last_name,
-                                'username' => $chat->username
+                                'username' => $chat->username,
+                                'mill_id' => $message->data,
                             ]);
 
                             $this->bot->sendMessage([
@@ -106,7 +117,7 @@ class Telegram
                                     'inline_keyboard' => [
                                         [
                                             [
-                                                'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'notif'
+                                                'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'mill'
                                             ]
                                         ]
                                     ]
