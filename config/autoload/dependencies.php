@@ -22,4 +22,5 @@ use App\Service\SambaFactory;
  */
 return [
     Samba::class => SambaFactory::class,
+    App\Service\Telegram::class => App\Service\TelegramFactory::class,
 ];

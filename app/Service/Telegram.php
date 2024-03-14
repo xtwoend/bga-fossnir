@@ -2,38 +2,120 @@
 
 namespace App\Service;
 
+use App\Model\TelegramUser;
+use TelegramSDK\BotAPI\Telegram\Bot;
+use TelegramSDK\BotAPI\Telegram\Update;
+use TelegramSDK\BotAPI\Exception\TelegramException;
+
 
 class Telegram
 {
-    protected $key;
-    protected $bot_username;
+    protected $bot;
 
-    public function __construct() {
-        $this->key = env('TELEGRAM_KEY');
-        $this->bot_username = env('TELEGRAM_USERNAME');
+    public function __construct(string $token, $type = null) {
+        $type = $type ?: Update::UPDATES_FROM_GET_UPDATES;
+        $this->bot = new Bot($token, $type);
     }
 
     public function send($chatId, $text)
     {
-        
+        return $this->bot->sendMessage([
+            'chat_id' => $chatId,
+            'text' => $text
+        ]);
     }
 
     public function listen()
     {
-        $config = config('databases.default');
-        try {
-            $telegram = new \Longman\TelegramBot\Telegram($this->key, $this->bot_username);
-            $telegram->enableMySql([
-                'host'     => $config->host,
-                'port'     => $config->port, // optional
-                'user'     => $config->username,
-                'password' => $config->password,
-                'database' => $config->database,
-            ]);
-            $telegram->handleGetUpdates();
-        } catch (\Longman\TelegramBot\Exception\TelegramException $e) {
-            // log telegram errors
-            // echo $e->getMessage();
+        for ( ; ; sleep(2)) {
+            $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
+            foreach($updates->result as $update){
+
+                if(isset($update->message)){
+                    $chat = $update->message->chat;
+                    $message = $update->message;
+                    
+                    $exists = TelegramUser::where('chat_id', $chat->id)->count();
+                    
+                    $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
+
+                    if($message->text == '/start'){
+                        $this->bot->sendMessage([
+                            'chat_id' => $chat->id,
+                            'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
+                            'reply_markup' => json_encode([
+                                'inline_keyboard' => [
+                                    [
+                                        [
+                                            'text' => $text, 'callback_data' => 'notif'
+                                        ]
+                                    ]
+                                ]
+                            ]),
+                        ]);
+                    }
+                    if($message->text == '/notifikasi'){
+                        $this->bot->sendMessage([
+                            'chat_id' => $chat->id,
+                            'reply_markup' => json_encode([
+                                'inline_keyboard' => [
+                                    [
+                                        [
+                                            'text' => $text, 'callback_data' => 'notif'
+                                        ]
+                                    ]
+                                ]
+                            ]),
+                        ]);
+                    }
+                }
+
+                if(isset($update->callback_query)) {
+                    $message = $update->callback_query;
+                    $chat = $update->callback_query->message->chat;
+                    
+                    if($message->data == 'notif') {
+                        $exists = TelegramUser::where('chat_id', $chat->id)->count();
+                        if($exists > 0) {
+                            TelegramUser::where('chat_id', $chat->id)->delete();
+                            $this->bot->sendMessage([
+                                'chat_id' => $chat->id,
+                                'text' => 'Notifikasi telah di non aktifkan',
+                                'reply_markup' => json_encode([
+                                    'inline_keyboard' => [
+                                        [
+                                            [
+                                                'text' => 'Aktifkan Notifikasi', 'callback_data' => 'notif'
+                                            ]
+                                        ]
+                                    ]
+                                ]),
+                            ]);
+                        }else{
+                            TelegramUser::create([
+                                'chat_id' => $chat->id,
+                                'first_name' => $chat->first_name,
+                                'last_name' => $chat->last_name,
+                                'username' => $chat->username
+                            ]);
+
+                            $this->bot->sendMessage([
+                                'chat_id' => $chat->id,
+                                'text' => 'Notifikasi telah aktif',
+                                'reply_markup' => json_encode([
+                                    'inline_keyboard' => [
+                                        [
+                                            [
+                                                'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'notif'
+                                            ]
+                                        ]
+                                    ]
+                                ]),
+                            ]);
+                        }
+                    }
+                }
+            }
         }
     }
 }
