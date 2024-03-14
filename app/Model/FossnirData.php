@@ -12,9 +12,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Model\Model;
+use Hyperf\Database\Schema\Blueprint;
+use Hyperf\Database\Model\Events\Created;
 
 class FossnirData extends Model
 {
@@ -69,5 +70,21 @@ class FossnirData extends Model
     public function mill()
     {
         return $this->belongsTo(FossnirDir::class, 'mill_id');
+    }
+
+    /**
+     * created event
+     */
+    public function created(Created $event)
+    {
+        $model = $event->getModel();
+
+        if($model->owm > 4) {
+            $users = \App\Model\TelegramUser::all();
+            $t = make(\App\Service\Telegram::class);
+            foreach($users as $user) {
+                $t->send($user->chat_id, "[{$model->sample_date}] {$model->product_name}, {$model->mill->mill_name}, {$model->owm}");
+            }
+        }
     }
 }
