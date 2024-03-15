@@ -125,8 +125,12 @@ class ReadCsvFileCommand extends HyperfCommand
             }
 
             if (! empty($data) && isset($data['owm'], $data['vm'], $data['odm'], $data['nos'])) {
-                $fossnir_data = FossnirData::table($file->mill_id)->create($data);
-                \dispatch(new NewFossnirData($fossnir_data));
+                try {  
+                    $fossnir_data = FossnirData::table($file->mill_id)->create($data);
+                    \dispatch(new NewFossnirData($fossnir_data));
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
 
             if (! empty($csv)) {
