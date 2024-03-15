@@ -128,15 +128,11 @@ class ReadCsvFileCommand extends HyperfCommand
                 try {  
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
                     \dispatch(new NewFossnirData($fossnir_data));
+                    $file->update(['processed' => 1]);
+                    unlink($temp_file);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
-            }
-
-            if (! empty($csv)) {
-                // CSVRead::table($file->mill_id)->insert($csv);
-                $file->update(['processed' => 1]);
-                unlink($temp_file);
             }
         }
     }
