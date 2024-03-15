@@ -120,6 +120,7 @@ class ReadCsvFileCommand extends HyperfCommand
                         }
                     }
                 } catch (Throwable $th) {
+                    var_dump($th->getMessage());
                     continue;
                 }
             }
@@ -131,8 +132,10 @@ class ReadCsvFileCommand extends HyperfCommand
                     $file->update(['processed' => 1]);
                     @unlink($temp_file);
                 } catch (\Throwable $th) {
-                    //throw $th;
+                    var_dump($th->getMessage());
                 }
+            }else{
+                var_dump('is data empty');
             }
         }
     }
