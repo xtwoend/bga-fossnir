@@ -16,6 +16,8 @@ use Hyperf\Context\ApplicationContext;
 use Hyperf\Di\Container;
 use Hyperf\Di\Definition\DefinitionSourceFactory;
 
+date_default_timezone_set(env('APP_TIMEZONE', 'Asia/Jakarta'));
+
 $container = new Container((new DefinitionSourceFactory())());
 
 return ApplicationContext::setContainer($container);

@@ -250,22 +250,86 @@ class DataController
         return response($data);
     }
 
+    #[RequestMapping(path: '/fossnir/grapic/daily', methods: 'get')]
+    public function graficDaily(RequestInterface $request)
+    {
+        $date = $request->input('date', null);
+        $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+
+        $millId = $request->input('mill_id', 1);
+        $groupId = $request->input('group_id', 4);
+        $resultName = $request->input('parameter', 'owm');
+        
+        $interval = 2;
+        $divinterval = intdiv(24, $interval);
+        $data_results = [];
+
+        // bedasarkan cutoff tiap jam 5 pagi
+        $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
+        $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
+
+        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $groupId)->where('parameter', $resultName)->first();
+        $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $millId)->get()->pluck('product_name')->toArray();
+
+        if (! empty($groups)) {
+            $inParams = implode("','", $groups);
+            $tableName = FossnirData::table($millId)->getTable();
+
+            // proses data dari jam 05 - 05 esok hari
+            $queries = [];
+            for ($i = 0; $i < $divinterval; ++$i) {
+                $cFrom = Carbon::parse($from)->addHour($interval * $i)->format('Y-m-d H:i:s');
+                $cTo = Carbon::parse($from)->addHour($interval * ($i + 1))->format('Y-m-d H:i:s');
+                $hour = Carbon::parse($cTo)->format('H:i');
+                $queries[] = "SELECT
+                            '{$hour}' as cycle_time,
+                            count({$resultName}) as count_file,
+                            avg({$resultName}) as result
+                        FROM {$tableName} 
+                        WHERE
+                            sample_date BETWEEN '{$cFrom}' AND '{$cTo}'
+                        AND product_name in ('{$inParams}')";
+            }
+
+            $query = implode(' UNION ', $queries);
+            $data_results = Db::select($query);
+
+            $data = collect($data_results);
+
+            // $data->map(function($row) use ($date) {
+            //     $row->result = $row->result ?: 0;
+            //     return $row;
+            // });
+        }
+    
+
+        return response($data, 0, [
+            'threshold' => $threshold?->threshold,
+            'parameter' => $resultName,
+            'start_date' => $from
+        ]);
+    }
+
     #[RequestMapping(path: '/fossnir/grapic/monthly', methods: 'get')]
     public function graficMonthly(RequestInterface $request)
     {
         $date = $request->input('date', null);
         $millId = $request->input('mill_id', 1);
-        $group_id = $request->input('group_id', 4);
+        $groupId = $request->input('group_id', 4);
         $resultName = $request->input('parameter', 'owm');
 
-        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $group_id)->where('parameter', $resultName)->first();
+        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $groupId)->where('parameter', $resultName)->first();
+        $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $millId)->get()->pluck('product_name')->toArray();
 
         $from = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-01');
         $to = Carbon::parse($from)->endOfMonth()->format('Y-m-d');
 
-        $data = FossnirReportDaily::where('mill_id', $millId)
-            ->where('group_id', $group_id)
+        $data = FossnirData::table($millId)
+            ->select(Db::raw("COUNT(IF(`$resultName` > 0, 1, NULL)) as total, sum(`{$resultName}`) as sum_result,  sum(`{$resultName}`)  / COUNT(IF(`$resultName` > 0, 1, NULL)) as result, DATE(sample_date) as tgl"))
+            ->whereIn('product_name', $groups)
             ->whereBetween('sample_date', [$from, $to])
+            ->groupBy('tgl')
+            ->orderBy('tgl')
             ->get();
         
         return response($data, 0, [
@@ -280,22 +344,26 @@ class DataController
     {
         $date = $request->input('date', null);
         $millId = $request->input('mill_id', 1);
-        $group_id = $request->input('group_id', 4);
+        $groupId = $request->input('group_id', 4);
         $resultName = $request->input('parameter', 'owm');
 
-        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $group_id)->where('parameter', $resultName)->first();
+        $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $groupId)->where('parameter', $resultName)->first();
 
         $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1) : Carbon::now();
         $from = $date->copy()->startOfYear();
         $to   = $date->copy()->endOfYear();
 
-        $countName = "score_{$resultName}";
-        $data = FossnirScore::table($millId)
-            ->select(Db::raw("sum(`{$resultName}`) as result, sum(`{$countName}`) as count"))
+        $data = FossnirReportDaily::select(Db::raw("SUM(`$resultName`) as result_sum, COUNT(IF(`$resultName` > 0, 1, NULL)) as sam_count, SUM(`$resultName`) / COUNT(IF(`$resultName` > 0, 1, NULL)) as result , YEAR(sample_date) as year, MONTH(sample_date) as month"))
+            ->where('mill_id', $millId)
+            ->where('group_id', $groupId)
             ->whereBetween('sample_date', [$from, $to])
-            ->whereIn('product_name', $groups)
+            ->groupBy('month', 'year')
+            ->orderBy('month')
             ->get();
 
+        $data->map(function($row) {
+            $row['tgl'] = Carbon::createFromDate($row->year, $row->month, 1)->format('Y-m-d');
+        });
 
         return response($data, 0, [
             'threshold' => $threshold?->threshold,
