@@ -255,7 +255,7 @@ class DataController
     {
         $date = $request->input('date', null);
         // $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-d');
-        $date = Carbon::now();
+        $date = Carbon::now()->format('Y-m-d');
 
         $millId = $request->input('mill_id', 1);
         $groupId = $request->input('group_id', 4);
