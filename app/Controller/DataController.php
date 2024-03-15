@@ -254,7 +254,8 @@ class DataController
     public function graficDaily(RequestInterface $request)
     {
         $date = $request->input('date', null);
-        $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+        // $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+        $date = Carbon::now();
 
         $millId = $request->input('mill_id', 1);
         $groupId = $request->input('group_id', 4);
@@ -295,11 +296,6 @@ class DataController
             $data_results = Db::select($query);
 
             $data = collect($data_results);
-
-            // $data->map(function($row) use ($date) {
-            //     $row->result = $row->result ?: 0;
-            //     return $row;
-            // });
         }
     
 
