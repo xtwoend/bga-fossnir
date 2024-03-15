@@ -129,7 +129,7 @@ class ReadCsvFileCommand extends HyperfCommand
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
                     \dispatch(new NewFossnirData($fossnir_data));
                     $file->update(['processed' => 1]);
-                    unlink($temp_file);
+                    @unlink($temp_file);
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
