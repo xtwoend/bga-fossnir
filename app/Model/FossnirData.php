@@ -56,8 +56,7 @@ class FossnirData extends Model
                 $table->float('nos', 5, 2)->nullable()->default(null);
                 $table->datetimes();
                 
-                // $table->index('sample_date');
-                $table->unique(['sample_date', 'product_name']);
+                $table->index(['sample_date', 'product_name']);
             });
         }
 
