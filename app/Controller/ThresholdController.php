@@ -53,7 +53,7 @@ class ThresholdController
         return response(new DataResource($data));
     }
 
-    #[RequestMapping(path: 'threshold-delete/{id}', methods: 'post')]
+    #[RequestMapping(path: '/threshold-delete/{id}', methods: 'post')]
     public function thresholdDelete($id, RequestInterface $request)
     {
         $data = FossnirThreshold::find($id)->delete();
@@ -93,7 +93,7 @@ class ThresholdController
         return response(new DataResource($data));
     }
 
-    #[RequestMapping(path: 'group-delete/{id}', methods: 'post')]
+    #[RequestMapping(path: '/group-delete/{id}', methods: 'post')]
     public function groupDelete($id, RequestInterface $request)
     {
         $data = GroupProduct::find($id)->delete();
