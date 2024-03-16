@@ -25,7 +25,7 @@ class FossnirThreshold extends Model
      * The attributes that are mass assignable.
      */
     protected array $fillable = [
-        'mill_id', 'group_id', 'threshold',
+        'mill_id', 'group_id', 'threshold', 'parameter'
     ];
 
     /**
