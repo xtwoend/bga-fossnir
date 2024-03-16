@@ -41,8 +41,8 @@ class FossnirScore extends Model
             Schema::create($tableName, function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('mill_id');
-                $table->date('sample_date');
-                $table->string('product_name');
+                $table->date('sample_date')->index();
+                $table->string('product_name')->index();
                 $table->integer('sample_count')->default(0);
                 $table->float('threshold_owm', 5, 2)->nullable();
                 $table->float('threshold_vm', 5, 2)->nullable();

@@ -47,9 +47,9 @@ class FossnirData extends Model
             Schema::create($tableName, function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->unsignedBigInteger('mill_id');
-                $table->datetime('sample_date');
+                $table->datetime('sample_date')->index();
                 $table->string('instrument_serial');
-                $table->string('product_name');
+                $table->string('product_name')->index();
                 $table->float('owm', 5, 2)->nullable()->default(null);
                 $table->float('vm', 5, 2)->nullable()->default(null);
                 $table->float('odm', 5, 2)->nullable()->default(null);
