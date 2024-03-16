@@ -30,7 +30,7 @@ class ThresholdController
         //     $data = $data->where('group_id', $groupId);
         // }
 
-        $data = $data->paginate(25);
+        $data = $data->paginate(200);
 
         return response(DataResource::collection($data));
     }
@@ -65,7 +65,7 @@ class ThresholdController
             $data = $data->where('mill_id', $millId);
         }
 
-        $data = $data->paginate(25);
+        $data = $data->paginate(200);
 
         return response(DataResource::collection($data));
     }
