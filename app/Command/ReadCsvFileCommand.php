@@ -136,13 +136,21 @@ class ReadCsvFileCommand extends HyperfCommand
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
                     \dispatch(new NewFossnirData($fossnir_data));
                     $file->update(['processed' => 1]);
-                    unlink($temp_file);
+                    if(file_exists($temp_file)) {
+                        unlink($temp_file);
+                    }
                 } catch (\Throwable $th) {
                     var_dump($th->getMessage());
+                    if(file_exists($temp_file)) {
+                        unlink($temp_file);
+                    }
                 }
             }else{
                 var_dump('is data empty');
                 $file->update(['processed' => 1]);
+                if(file_exists($temp_file)) {
+                    unlink($temp_file);
+                }
             }
         }
     }
