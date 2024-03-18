@@ -142,6 +142,7 @@ class ReadCsvFileCommand extends HyperfCommand
                 }
             }else{
                 var_dump('is data empty');
+                $file->update(['processed' => 1]);
             }
         }
     }
