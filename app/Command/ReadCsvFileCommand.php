@@ -121,6 +121,7 @@ class ReadCsvFileCommand extends HyperfCommand
                     }
                 } catch (Throwable $th) {
                     var_dump($th->getMessage());
+                    @unlink($temp_file);
                     continue;
                 }
             }
