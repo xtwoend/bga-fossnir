@@ -120,9 +120,13 @@ class ReadCsvFileCommand extends HyperfCommand
                         }
                     }
                 } catch (Throwable $th) {
+                    $file->update(['processed' => 1]);
                     var_dump($th->getMessage());
-                    var_dump($temp_file);
-                    var_dump(unlink($temp_file));
+
+                    if(file_exists($temp_file)) {
+                        unlink($temp_file);
+                    }
+
                     continue;
                 }
             }
