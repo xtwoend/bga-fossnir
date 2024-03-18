@@ -121,7 +121,7 @@ class ReadCsvFileCommand extends HyperfCommand
                     }
                 } catch (Throwable $th) {
                     var_dump($th->getMessage());
-                    @unlink($temp_file);
+                    unlink($temp_file);
                     continue;
                 }
             }
@@ -131,7 +131,7 @@ class ReadCsvFileCommand extends HyperfCommand
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
                     \dispatch(new NewFossnirData($fossnir_data));
                     $file->update(['processed' => 1]);
-                    @unlink($temp_file);
+                    unlink($temp_file);
                 } catch (\Throwable $th) {
                     var_dump($th->getMessage());
                 }
