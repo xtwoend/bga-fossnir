@@ -183,27 +183,27 @@ return [
         ]),
 
         // read server ke2
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_13')->setRule('0 * * * *')->setCallback([
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_13')->setRule('2 * * * *')->setCallback([
             'command' => 'fossnir:read-file',
             'mill_id' => 13,
             '--disable-event-dispatcher' => true,
         ]),
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_14')->setRule('5 * * * *')->setCallback([
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_14')->setRule('7 * * * *')->setCallback([
             'command' => 'fossnir:read-file',
             'mill_id' => 14,
             '--disable-event-dispatcher' => true,
         ]),
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('10 * * * *')->setCallback([
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('9 * * * *')->setCallback([
             'command' => 'fossnir:read-file',
             'mill_id' => 15,
             '--disable-event-dispatcher' => true,
         ]),
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('15 * * * *')->setCallback([
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('13 * * * *')->setCallback([
             'command' => 'fossnir:read-file',
             'mill_id' => 16,
             '--disable-event-dispatcher' => true,
         ]),
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('20 * * * *')->setCallback([
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_15')->setRule('17 * * * *')->setCallback([
             'command' => 'fossnir:read-file',
             'mill_id' => 17,
             '--disable-event-dispatcher' => true,
