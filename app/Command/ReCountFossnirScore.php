@@ -33,10 +33,11 @@ class ReCountFossnirScore extends HyperfCommand
         $diff = Carbon::now()->diffInDays($date);
         
         if($diff > 0) {
-            $handler = new FossnirHandler;
+            
             for($i = 0; $i < $diff; $i++) {
                 $nd = $date->copy()->addDay($i);
                 // var_dump($nd->format('c'));
+                $handler = new FossnirHandler;
                 $handler->count($nd);
             }
         }
