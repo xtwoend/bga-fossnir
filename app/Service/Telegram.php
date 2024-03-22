@@ -31,7 +31,7 @@ class Telegram
         for ( ; ; sleep(2)) {
             $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
             foreach($updates->result as $update){
-
+                var_dump($update->message);
                 if(isset($update->message)){
                     $chat = $update->message->chat;
                     $message = $update->message;
