@@ -18,6 +18,6 @@ class TelegramProcess extends AbstractProcess
 
     public function isEnable($server): bool
     {
-        return true;
+        return env('TELEGRAM_ENABLE', true);
     }
 }
