@@ -77,7 +77,7 @@ class FossnirHandler
                         
                 $score->save();
 
-                var_dump($score->toArray());
+                usleep(500000);
             }
         }
     }
