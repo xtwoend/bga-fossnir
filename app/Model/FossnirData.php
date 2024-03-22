@@ -87,4 +87,12 @@ class FossnirData extends Model
             }
         }
     }
+
+    protected $texts = [
+        'press' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
+        'nutext' => '%s aktual %f % diatas standart %f % O/WM',
+        'cts' => '%s aktual %f % diatas standart  %f % O/WM',
+        'slug' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
+        'recovery' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
+    ];
 }

@@ -12,16 +12,18 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Model\FossnirData;
-use App\Model\FossnirDir;
-use App\Model\FossnirReportDaily;
-use App\Model\Group;
-use App\Model\GroupProduct;
 use Carbon\Carbon;
+use App\Model\Group;
+use App\Model\FossnirDir;
+use App\Model\FossnirData;
+use App\Model\FossnirScore;
+use App\Model\GroupProduct;
+use Hyperf\DbConnection\Db;
+use App\Model\FossnirThreshold;
+use App\Model\FossnirReportDaily;
+use Psr\Container\ContainerInterface;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
-use Hyperf\DbConnection\Db;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 
 #[Command]
@@ -29,75 +31,80 @@ class FossnirDailyReportCommand extends HyperfCommand
 {
     public function __construct(protected ContainerInterface $container)
     {
-        parent::__construct('fossnir:daily-save');
+        parent::__construct('fossnir:daily-count');
     }
 
     public function configure()
     {
         parent::configure();
-        $this->setDescription('Save daily result fossnir per mill');
+        $this->setDescription('Save daily result fossnir all mill');
     }
 
     public function handle()
     {
-        // result
         $date = $this->input->getArgument('date');
-        $now = $date ? Carbon::parse($date) : Carbon::now();
-        $from = Carbon::parse($now->format('Y-m-d') . ' 05:00:00')->format('Y-m-d H:i:s');
-        $to = Carbon::parse($now->format('Y-m-d') . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
-        $interval = 2;
+        $date = $date ? Carbon::parse($date) : Carbon::now();
 
-        foreach (FossnirDir::all() as $dir) {
-            // calculate bedasarkan group fossnir mechines
-            $groups = Group::all();
-            foreach ($groups as $group) {
-                $groupProducts = GroupProduct::where('mill_id', $dir->id)->where('group_id', $group->id)->get();
+        $hour = (int) $date->format('H');
+        if($hour < 5) {
+            $date = $date->subDay();
+        }
 
-                $prs = [];
-                foreach ($groupProducts as $g) {
-                    $pr = FossnirData::table($dir->id)
-                        ->select(Db::raw('count(*) as total, avg(owm) as owm, avg(vm) as vm, avg(odm) as odm, avg(nos) as nos'))
-                        ->where('product_name', $g->product_name)
-                        ->whereBetween('sample_date', [$from, $to])
-                        ->groupBy('product_name')
-                        ->get()
-                        ->first();
+        foreach(FossnirDir::orderBy('order')->get() as $mill)
+        {
+            $groups = GroupProduct::where('mill_id', $mill->id)->get();
+            foreach($groups as $group)
+            {
+                $thresholds = FossnirThreshold::where('mill_id', $mill->id)
+                    ->where('group_id', $group->group_id)    
+                    ->whereIn('parameter', ['owm', 'vm', 'odm', 'nos'])
+                    ->get();
 
-                    if ($pr) {
-                        $prs[] = $pr->toArray();
-                    }
-                }
-
-                $collect = collect($prs);
-                $max = $collect->max('total') ?? 0;
-
-                $tt = $collect->map(function ($v) use ($interval) {
-                    $v['owm_result'] = ($v['total'] * $interval) * $v['owm'];
-                    $v['vm_result'] = ($v['total'] * $interval) * $v['vm'];
-                    $v['odm_result'] = ($v['total'] * $interval) * $v['odm'];
-                    $v['nos_result'] = ($v['total'] * $interval) * $v['nos'];
-
-                    $v['total_2'] = $v['total'] * $interval;
-                    return $v;
-                })->all();
-
-                $count = collect($tt)->sum('total_2');
-
-                $owm = $count > 0 ? (collect($tt)->sum('owm_result') / $count) : 0;
-                $vm = $count > 0 ? (collect($tt)->sum('vm_result') / $count) : 0;
-                $odm = $count > 0 ? (collect($tt)->sum('odm_result') / $count) : 0;
-                $nos = $count > 0 ? (collect($tt)->sum('nos_result') / $count) : 0;
-
-                FossnirReportDaily::updateOrCreate([
-                    'mill_id' => $dir->id,
-                    'group_id' => $group->id,
-                    'sample_date' => $now->format('Y-m-d'),
-                ], [
-                    'owm' => $owm,
-                    'vm' => $vm,
-                    'odm' => $odm,
-                    'nos' => $nos,
+                $score = FossnirScore::table($mill->id)->updateOrCreate([
+                    'sample_date' => $date->format('Y-m-d'),
+                    'mill_id' => $mill->id,
+                    'product_name' => $group->product_name,
+                ],[
+                    'threshold_owm' => ($thresholds?->where('parameter', 'owm')->first()?->threshold) ?: 0,
+                    'threshold_vm' => ($thresholds?->where('parameter', 'vm')->first()?->threshold) ?: 0,
+                    'threshold_odm' => ($thresholds?->where('parameter', 'odm')->first()?->threshold) ?: 0,
+                    'threshold_nos' => ($thresholds?->where('parameter', 'nos')->first()?->threshold) ?: 0,
                 ]);
+
+                $sDate = $score->sample_date->format('Y-m-d');
+
+                // query to read data
+                $count = FossnirData::table($mill->id)
+                    ->select(
+                        Db::raw("
+                            COUNT(*) as sample_count, 
+                            COUNT(IF(owm <= {$score->threshold_owm}, 1, NULL)) AS conconformance_owm, 
+                            COUNT(IF(vm <= {$score->threshold_vm}, 1, NULL)) AS conconformance_vm, 
+                            COUNT(IF(odm <= {$score->threshold_odm}, 1, NULL)) AS conconformance_odm, 
+                            COUNT(IF(nos <= {$score->threshold_nos}, 1, NULL)) AS conconformance_nos,
+                            SUM(owm) AS owm,
+                            SUM(vm) AS vm,
+                            SUM(odm) AS odm,
+                            SUM(nos) AS nos"
+                    ))
+                    ->where('product_name', $group->product_name)
+                    ->where('sample_date', '>=', Carbon::parse($sDate . ' 05:00:00')->format('Y-m-d H:i:s'))
+                    ->where('sample_date', '<', Carbon::parse($sDate . ' 05:00:00')->addDay()->format('Y-m-d H:i:s'))
+                    ->get()
+                    ->first();
+
+                $score->sample_count = $count->sample_count;
+                $score->score_owm = $count->conconformance_owm;
+                $score->score_vm = $count->conconformance_vm;
+                $score->score_odm = $count->conconformance_odm;
+                $score->score_nos = $count->conconformance_nos;
+
+                $score->owm = $count->owm ?: 0;
+                $score->vm = $count->vm ?: 0;
+                $score->odm = $count->odm ?: 0;
+                $score->nos = $count->nos ?: 0;
+ 
+                $score->save();
             }
         }
     }

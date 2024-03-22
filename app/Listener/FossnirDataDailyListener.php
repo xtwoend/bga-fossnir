@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Listener;
 
 use Carbon\Carbon;
+use App\Model\FossnirData;
 use App\Model\FossnirScore;
 use App\Model\GroupProduct;
+use Hyperf\DbConnection\Db;
 use App\Event\NewFossnirData;
 use App\Model\FossnirThreshold;
 use Hyperf\Event\Annotation\Listener;
@@ -50,26 +52,27 @@ class FossnirDataDailyListener implements ListenerInterface
                 'sample_date' => $date->format('Y-m-d'),
                 'mill_id' => $mill_id,
                 'product_name' => $group->product_name,
+            ],[
                 'threshold_owm' => $thresholds?->where('parameter', 'owm')->first()?->threshold,
                 'threshold_vm' => $thresholds?->where('parameter', 'vm')->first()?->threshold,
                 'threshold_odm' => $thresholds?->where('parameter', 'odm')->first()?->threshold,
                 'threshold_nos' => $thresholds?->where('parameter', 'nos')->first()?->threshold,
             ]);
 
-            $owm = ($score->threshold_owm >= $data->owm)? 1 : 0;
-            $vm = ($score->threshold_vm >= $data->vm)? 1 : 0;
-            $odm = ($score->threshold_odm >= $data->odm) ? 1 : 0;
-            $nos = ($score->threshold_nos >= $data->nos) ? 1 : 0;
+            // query to read data
+            $count = FossnirData::table($mill_id)
+                ->select(Db::raw("COUNT(*) as sample_count, COUNT(IF(owm <= {$score->threshold_owm}, 1, NULL)) AS conconformance_owm, COUNT(IF(vm <= {$score->threshold_vm}, 1, NULL)) AS conconformance_vm, COUNT(IF(odm <= {$score->threshold_odm}, 1, NULL)) AS conconformance_odm, COUNT(IF(nos <= {$score->threshold_nos}, 1, NULL)) AS conconformance_nos"))
+                ->where('product_name', $data->product_name)
+                ->where('sample_date', '>=', Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s'))
+                ->where('sample_date', '<', Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s'))
+                ->get()
+                ->first();
 
-            $score->sample_count = $score->sample_count + 1;
-            $score->score_owm = $score->score_owm + $owm;
-            $score->score_vm = $score->score_vm + $vm;
-            $score->score_odm = $score->score_odm + $odm;
-            $score->score_nos = $score->score_nos + $nos;
-            $score->owm = $score->owm + $data->owm;
-            $score->vm = $score->vm + $data->vm;
-            $score->odm = $score->odm + $data->odm;
-            $score->nos = $score->nos + $data->nos;
+            $score->sample_count = $count->sample_count;
+            $score->score_owm = $count->conconformance_owm;
+            $score->score_vm = $count->conconformance_vm;
+            $score->score_odm = $count->conconformance_odm;
+            $score->score_nos = $count->conconformance_nos;
 
             $score->save();
         }
