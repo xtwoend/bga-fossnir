@@ -133,11 +133,12 @@ class Telegram
                                 ]),
                             ]);
                         }else{
+                            
                             TelegramUser::create([
                                 'chat_id' => $chat->id,
-                                'first_name' => $chat->first_name,
-                                'last_name' => $chat->last_name,
-                                'username' => $chat->username,
+                                'first_name' => $chat->first_name ?? null,
+                                'last_name' => $chat->last_name ?? null,
+                                'username' => $chat->username ?? null,
                                 'mill_id' => $message->data,
                             ]);
 
