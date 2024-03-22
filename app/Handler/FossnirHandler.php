@@ -18,9 +18,11 @@ class FossnirHandler
         if($hour < 5) {
             $date = $date->subDay();
         }
-
+        
         foreach(FossnirDir::orderBy('order')->get() as $mill)
         {
+            var_dump($mill->id);
+
             $groups = GroupProduct::where('mill_id', $mill->id)->get();
             foreach($groups as $group)
             {
@@ -72,8 +74,10 @@ class FossnirHandler
                 $score->vm = $count->vm ?: 0;
                 $score->odm = $count->odm ?: 0;
                 $score->nos = $count->nos ?: 0;
- 
+                        
                 $score->save();
+
+                var_dump($score->toArray());
             }
         }
     }
