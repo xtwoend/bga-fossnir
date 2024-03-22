@@ -13,15 +13,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Carbon\Carbon;
-use App\Model\Group;
-use App\Model\FossnirDir;
-use App\Model\FossnirData;
-use App\Model\FossnirScore;
-use App\Model\GroupProduct;
-use Hyperf\DbConnection\Db;
 use App\Handler\FossnirHandler;
-use App\Model\FossnirThreshold;
-use App\Model\FossnirReportDaily;
 use Psr\Container\ContainerInterface;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
