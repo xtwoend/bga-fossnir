@@ -31,7 +31,7 @@ class Telegram
         for ( ; ; sleep(2)) {
             $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
             foreach($updates->result as $update){
-                var_dump($update->message);
+               
                 if(isset($update->message)){
                     $chat = $update->message->chat;
                     $message = $update->message;
@@ -141,9 +141,11 @@ class Telegram
                                 'mill_id' => $message->data,
                             ]);
 
+                            $mill = FossnirDir::find($message->data);
+
                             $this->bot->sendMessage([
                                 'chat_id' => $chat->id,
-                                'text' => 'Notifikasi telah di aktifkan',
+                                'text' => 'Notifikasi telah di aktifkan pada mill ' . $mill?->mill_name,
                                 'reply_markup' => json_encode([
                                     'inline_keyboard' => [
                                         [
