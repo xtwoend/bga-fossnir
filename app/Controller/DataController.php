@@ -264,7 +264,7 @@ class DataController
         $interval = 2;
         $divinterval = intdiv(24, $interval);
         $data_results = [];
-
+        $data = [];
         // bedasarkan cutoff tiap jam 5 pagi
         $from = Carbon::parse($date . ' 05:00:00')->format('Y-m-d H:i:s');
         $to = Carbon::parse($date . ' 05:00:00')->addDay()->format('Y-m-d H:i:s');
@@ -323,7 +323,7 @@ class DataController
         $data = FossnirData::table($millId)
             ->select(Db::raw("COUNT(IF(`$resultName` > 0, 1, NULL)) as total, sum(`{$resultName}`) as sum_result,  sum(`{$resultName}`)  / COUNT(IF(`$resultName` > 0, 1, NULL)) as result, DATE(sample_date) as tgl"))
             ->whereIn('product_name', $groups)
-            ->whereBetween('sample_date', [$from, $to])
+            ->whereDateBetween('sample_date', [$from, $to])
             ->groupBy('tgl')
             ->orderBy('tgl')
             ->get();
@@ -342,18 +342,24 @@ class DataController
         $millId = $request->input('mill_id', 1);
         $groupId = $request->input('group_id', 4);
         $resultName = $request->input('parameter', 'owm');
-
+        $groups = GroupProduct::where('group_id', $groupId)->where('mill_id', $millId)->get()->pluck('product_name')->toArray();
+        
         $threshold = FossnirThreshold::where('mill_id', $millId)->where('group_id', $groupId)->where('parameter', $resultName)->first();
 
         $date = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1) : Carbon::now();
-        $from = $date->copy()->startOfYear();
-        $to   = $date->copy()->endOfYear();
+        $from = $date->copy()->startOfYear()->format('Y-m-d');
+        $to   = $date->copy()->endOfYear()->format('Y-m-d');
 
-        $data = FossnirReportDaily::select(Db::raw("SUM(`$resultName`) as result_sum, COUNT(IF(`$resultName` > 0, 1, NULL)) as sam_count, SUM(`$resultName`) / COUNT(IF(`$resultName` > 0, 1, NULL)) as result , YEAR(sample_date) as year, MONTH(sample_date) as month"))
-            ->where('mill_id', $millId)
-            ->where('group_id', $groupId)
-            ->whereBetween('sample_date', [$from, $to])
-            ->groupBy('month', 'year')
+        $data = FossnirData::table($millId)
+            ->select(Db::raw("
+                COUNT(IF(`{$resultName}` > 0, 1, NULL)) as total, 
+                sum(`{$resultName}`) as sum_result,  
+                sum(`{$resultName}`)  / COUNT(IF(`{$resultName}` > 0, 1, NULL)) as result, 
+                YEAR(sample_date) AS year,
+                MONTH(sample_date) AS month"))
+            ->whereIn('product_name', $groups)
+            ->whereDateBetween('sample_date', [$from, $to])
+            ->groupBy('year', 'month')
             ->orderBy('month')
             ->get();
 
@@ -371,18 +377,42 @@ class DataController
     #[RequestMapping(path: '/fossnir/score', methods: 'get')]
     public function score(RequestInterface $request)
     {
-        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
-
+        $type = 'day';
+        if(is_array($request->input('date'))) {
+            $type = 'month';
+            $date = $request->input('date');
+            $from = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-01');
+            $to = Carbon::parse($from)->endOfMonth()->format('Y-m-d');
+        }else {
+            $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        }
+        
         $resultName = $request->input('parameter', 'owm');
         $sc = "score_{$resultName}";
 
+        // group_id
+        $groupId = $request->input('group_id', 4);
+        
         $data = [];
         foreach (FossnirDir::orderBy('order')->get() as $dir) {
-            // result today
-            $result = FossnirScore::table($dir->id)
-                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
-                ->where('sample_date', $date)
-                ->first();
+
+            $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
+
+            if($type == 'day') {
+                // result today
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                    ->where('sample_date', $date)
+                    ->whereIn('product_name', $groups)
+                    ->first();
+            }else{
+                // result today
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                    ->whereIn('product_name', $groups)
+                    ->whereBetween('sample_date', [$from, $to])
+                    ->first();
+            }
 
             $data[] = [
                 'id' => $dir->id,
@@ -398,16 +428,58 @@ class DataController
     #[RequestMapping(path: '/fossnir/total-score', methods: 'get')]
     public function scoreAll(RequestInterface $request)
     {
-        $date = $request->input('date', Carbon::now()->format('Y-m-d'));
-
+        $type = 'day';
+        if(is_array($request->input('date'))) {
+            $type = 'month';
+            $date = $request->input('date');
+            $from = $date ? Carbon::createFromDate($date['year'], ($date['month'] + 1), 1)->format('Y-m-d') : Carbon::now()->format('Y-m-01');
+            $to = Carbon::parse($from)->endOfMonth()->format('Y-m-d');
+        }else {
+            $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        }
+        
         $resultName = $request->input('parameter', 'owm');
         $sc = "score_{$resultName}";
-
+        $groupId = $request->input('group_id', 4);
+        $millId = $request->input('mill_id', 999);
+        
         $data = [];
-        foreach (FossnirDir::orderBy('order')->get() as $dir) {
+        if($millId == 999) {
+            foreach (FossnirDir::orderBy('order')->get() as $dir) {
+                $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
+
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"));
+                
+                if($type == 'day') {
+                    $result = $result->where('sample_date', $date);
+                }else{
+                    $result = $result->whereBetween('sample_date', [$from, $to]);
+                }
+
+                $result = $result->whereIn('product_name', $groups)
+                    ->first();
+
+                $data[] = [
+                    'id' => $dir->id,
+                    'mill' => $dir->mill_name,
+                    'result' => $result->result,
+                    'count' => $result->count
+                ];
+            }
+        }else{
+            $dir = FossnirDir::find($millId);
+            $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
             $result = FossnirScore::table($dir->id)
-                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
-                ->where('sample_date', $date)
+                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"));
+                
+            if($type == 'day') {
+                $result = $result->where('sample_date', $date);
+            }else{
+                $result = $result->whereBetween('sample_date', [$from, $to]);
+            }
+
+            $result = $result->whereIn('product_name', $groups)
                 ->first();
 
             $data[] = [

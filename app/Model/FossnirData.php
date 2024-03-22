@@ -72,6 +72,21 @@ class FossnirData extends Model
     }
 
     /**
+     * score custom
+     */
+    public function scopeWhereDateBetween($query, $fieldName, array $date)
+    {   
+        if(count($date) !== 2) return $query;
+
+        $fromDate = $date[0];
+        $toDate = $date[1];
+
+        return $query
+            ->whereDate($fieldName, '>=', $fromDate)
+            ->whereDate($fieldName, '<=', $toDate);
+    }
+
+    /**
      * created event
      */
     public function created(Created $event)
