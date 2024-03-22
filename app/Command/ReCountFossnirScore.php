@@ -35,8 +35,10 @@ class ReCountFossnirScore extends HyperfCommand
         if($diff > 0) {
             
             for($i = 0; $i < $diff; $i++) {
+                
                 $nd = $date->copy()->addDay($i);
-                // var_dump($nd->format('c'));
+                var_dump($nd->copy()->format('c'));
+
                 $handler = new FossnirHandler;
                 $handler->count($nd);
             }
