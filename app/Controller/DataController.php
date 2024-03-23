@@ -417,7 +417,61 @@ class DataController
             $data[] = [
                 'id' => $dir->id,
                 'mill' => $dir->mill_name,
-                'score' => ($result->count > 0) ? ($result->result / $result->count) * 100 : 0,
+                'score' =>  ($result->count > 0) ? ($result->result / $result->count) * 100 : 0,
+            ];
+        }
+
+        return response($data);
+    }
+
+
+    #[RequestMapping(path: '/fossnir/score-type', methods: 'get')]
+    public function scoreByType(RequestInterface $request)
+    {
+        $type = $request->input('type');
+        $date = $request->input('date');
+
+        if($type == 'mtd') {
+            $from = Carbon::parse($date)->startOfMonth()->format('Y-m-d');
+            $to = Carbon::parse($date)->endOfMonth()->format('Y-m-d');
+        }elseif($type == 'ytd') {
+            $from = Carbon::parse($date)->firstOfYear()->format('Y-m-d');
+            $to = Carbon::parse($date)->endOfYear()->format('Y-m-d');
+        } else {
+            $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        }
+        
+        $resultName = $request->input('parameter', 'owm');
+        $sc = "score_{$resultName}";
+
+        // group_id
+        $groupId = $request->input('group_id', 4);
+        
+        $data = [];
+        foreach (FossnirDir::orderBy('order')->get() as $dir) {
+
+            $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
+
+            if($type == 'today') {
+                // result today
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                    ->where('sample_date', $date)
+                    ->whereIn('product_name', $groups)
+                    ->first();
+            }else{
+                // result today
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"))
+                    ->whereIn('product_name', $groups)
+                    ->whereBetween('sample_date', [$from, $to])
+                    ->first();
+            }
+
+            $data[] = [
+                'id' => $dir->id,
+                'mill' => $dir->mill_name,
+                'score' =>  ($result->count > 0) ? ($result->result / $result->count) * 100 : 0,
             ];
         }
 
@@ -472,8 +526,89 @@ class DataController
             $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
             $result = FossnirScore::table($dir->id)
                 ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"));
-                
+
             if($type == 'day') {
+                $result = $result->where('sample_date', $date);
+            }else{
+                $result = $result->whereBetween('sample_date', [$from, $to]);
+            }
+
+            $result = $result->whereIn('product_name', $groups)
+                ->first();
+
+            $data[] = [
+                'id' => $dir->id,
+                'mill' => $dir->mill_name,
+                'result' => $result->result,
+                'count' => $result->count
+            ];
+        }
+
+        $collection = collect($data);
+        $result = $collection->sum('result');
+        $count = $collection->sum('count');
+
+        $score  = $count > 0 ? $result / $count : 0;
+        $score  = (int) ($score * 100);
+
+        return response([
+            'score' => $score,
+        ]);
+    }
+
+
+    #[RequestMapping(path: '/fossnir/total-score-type', methods: 'get')]
+    public function scoreAllType(RequestInterface $request)
+    {
+        $type = $request->input('type');
+        $date = $request->input('date');
+
+        if($type == 'mtd') {
+            $from = Carbon::parse($date)->startOfMonth()->format('Y-m-d');
+            $to = Carbon::parse($date)->endOfMonth()->format('Y-m-d');
+        }elseif($type == 'ytd') {
+            $from = Carbon::parse($date)->firstOfYear()->format('Y-m-d');
+            $to = Carbon::parse($date)->endOfYear()->format('Y-m-d');
+        } else {
+            $date = $request->input('date', Carbon::now()->format('Y-m-d'));
+        }
+        
+        $resultName = $request->input('parameter', 'owm');
+        $sc = "score_{$resultName}";
+        $groupId = $request->input('group_id', 4);
+        $millId = $request->input('mill_id', 999);
+        
+        $data = [];
+        if($millId == 999) {
+            foreach (FossnirDir::orderBy('order')->get() as $dir) {
+                $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
+
+                $result = FossnirScore::table($dir->id)
+                    ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"));
+                
+                if($type == 'today') {
+                    $result = $result->where('sample_date', $date);
+                }else{
+                    $result = $result->whereBetween('sample_date', [$from, $to]);
+                }
+
+                $result = $result->whereIn('product_name', $groups)
+                    ->first();
+
+                $data[] = [
+                    'id' => $dir->id,
+                    'mill' => $dir->mill_name,
+                    'result' => $result->result,
+                    'count' => $result->count
+                ];
+            }
+        }else{
+            $dir = FossnirDir::find($millId);
+            $groups = GroupProduct::where('mill_id', $dir->id)->where('group_id', $groupId)->get()->pluck('product_name')->toArray();
+            $result = FossnirScore::table($dir->id)
+                ->select(Db::raw("sum(`{$sc}`) as result, sum(`sample_count`) as count"));
+
+            if($type == 'today') {
                 $result = $result->where('sample_date', $date);
             }else{
                 $result = $result->whereBetween('sample_date', [$from, $to]);
