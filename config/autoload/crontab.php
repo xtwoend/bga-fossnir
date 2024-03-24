@@ -28,7 +28,7 @@ return [
         // calculate score conformance fossnir
         (new Crontab())->setType('command')->setName('DailyScoreFossnirCommand')->setRule('*/10 * * * *')->setCallback([
             'command' => 'fossnir:daily-count',
-            'date' => Carbon::now(),
+            'date' => Carbon::now()->format('Y-m-d H:i:s'),
             '--disable-event-dispatcher' => true,
         ]),
 
