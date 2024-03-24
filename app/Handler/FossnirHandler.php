@@ -63,6 +63,8 @@ class FossnirHandler
                     ->where('sample_date', '<', Carbon::parse($sDate . ' 05:00:00')->addDay()->format('Y-m-d H:i:s'))
                     ->get()
                     ->first();
+                
+                var_dump($count);
 
                 $score->sample_count = $count->sample_count;
                 $score->score_owm = $count->conconformance_owm;
