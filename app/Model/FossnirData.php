@@ -106,12 +106,12 @@ class FossnirData extends Model
             if($treshold && $model->owm > $treshold->threshold) {
                 $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
                 $t = make(\App\Service\Telegram::class);
-                $text = sprintf("%s  aktual %f % diatas standart %f %O/WM", $model->product_name, $model->owm, $treshold->threshold);
+                $text = sprintf("%s  aktual %.2f %%  diatas standart %.2f %% O/WM", $model->product_name, $model->owm, $treshold->threshold);
                 $text = "[{$mill->mill_name}][{$model->sample_date}] {$text}";
                
                 News::create([
                     'mill_id' => $mill->id,
-                    'text' => $text,
+                    'content' => $text,
                 ]);
 
                 foreach($users as $user) {

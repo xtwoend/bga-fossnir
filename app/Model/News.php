@@ -19,7 +19,7 @@ class News extends Model
      * The attributes that are mass assignable.
      */
     protected array $fillable = [
-        'mill_id', 'text'
+        'mill_id', 'content'
     ];
 
     /**
