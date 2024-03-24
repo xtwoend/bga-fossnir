@@ -12,6 +12,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use App\Model\News;
+use App\Model\FossnirDir;
+use App\Model\GroupProduct;
+use App\Model\FossnirThreshold;
 use Hyperf\Database\Schema\Schema;
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\Database\Schema\Blueprint;
@@ -93,21 +97,27 @@ class FossnirData extends Model
     {
         $model = $event->getModel();
 
-        if($model->owm > 4) {
-            $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
+        $inGroup = GroupProduct::where('mill_id', $model->mill_id)->where('product_name', $model->product_name)->first();
+        $mill = FossnirDir::find($model->mill_id);
+    
+        if($inGroup) {
+            
+            $treshold = FossnirThreshold::where('mill_id', $model->mill_id)->where('group_id', $inGroup->group_id)->where('parameter', 'owm')->first();
+            if($treshold && $model->owm > $treshold->threshold) {
+                $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
+                $t = make(\App\Service\Telegram::class);
+                $text = sprintf("%s  aktual %f % diatas standart %f %O/WM", $model->product_name, $model->owm, $treshold->threshold);
+                $text = "[{$mill->mill_name}][{$model->sample_date}] {$text}";
+               
+                News::create([
+                    'mill_id' => $mill->id,
+                    'text' => $text,
+                ]);
 
-            $t = make(\App\Service\Telegram::class);
-            foreach($users as $user) {
-                $t->send($user->chat_id, "[{$model->sample_date}] {$model->product_name}, {$model->mill->mill_name}, {$model->owm}");
+                foreach($users as $user) {
+                    $t->send($user->chat_id, $text);
+                }
             }
         }
     }
-
-    protected $texts = [
-        'press' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
-        'nutext' => '%s aktual %f % diatas standart %f % O/WM',
-        'cts' => '%s aktual %f % diatas standart  %f % O/WM',
-        'slug' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
-        'recovery' => 'Oil Losses %s aktual %f % diatas standart %f % O/WM',
-    ];
 }
