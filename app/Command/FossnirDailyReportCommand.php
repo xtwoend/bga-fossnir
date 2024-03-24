@@ -38,14 +38,18 @@ class FossnirDailyReportCommand extends HyperfCommand
         $date = $this->input->getArgument('date');
         $date = $date ? Carbon::parse($date) : Carbon::now();
 
+        $millId = $this->input->getArgument('mill_id');
+        $millId = $millId ?? 'all';
+
         $handler = new FossnirHandler;
-        $handler->count($date);
+        $handler->count($date, $millId);
     }
 
     protected function getArguments()
     {
         return [
             ['date', InputArgument::OPTIONAL, 'date'],
+            ['mill_id', InputArgument::OPTIONAL, 'mill id'],
         ];
     }
 }
