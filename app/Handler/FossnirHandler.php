@@ -77,7 +77,7 @@ class FossnirHandler
                 ->get()
                 ->first();
 
-            var_dump($mill->id, $sDate , $group->product_name, $count->toArray());
+            // var_dump($mill->id, $sDate , $group->product_name, $count->toArray());
 
             $score->sample_count = $count->sample_count;
             $score->score_owm = $count->conconformance_owm;
