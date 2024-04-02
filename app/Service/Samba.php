@@ -24,7 +24,7 @@ class Samba
     protected $share;
 
     public function __construct($config = null)
-    {
+    {   
         $this->smb($config);
     }
 
@@ -134,7 +134,7 @@ class Samba
         $timeout = $config['timeout'] ?? config('smb.timeout');
         $minProtocol = $config['smb_version_min'] ?? config('smb.smb_version_min');
         $maxProtocol = $config['smb_version_max'] ?? config('smb.smb_version_max');
-
+   
         $option = new Options();
         $option->setTimeout($timeout);
         $option->setMinProtocol($minProtocol);
