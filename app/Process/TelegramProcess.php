@@ -6,6 +6,8 @@ namespace App\Process;
 use App\Service\Telegram;
 use Hyperf\Process\AbstractProcess;
 use Hyperf\Process\Annotation\Process;
+use function Hyperf\Support\env;
+use function Hyperf\Support\make;
 
 #[Process(name: "telegram_process")]
 class TelegramProcess extends AbstractProcess

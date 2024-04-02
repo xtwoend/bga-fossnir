@@ -9,8 +9,6 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-use App\Service\Samba;
-use App\Service\SambaFactory;
 
 /**
  * This file is part of Hyperf.
@@ -21,6 +19,6 @@ use App\Service\SambaFactory;
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    Samba::class => SambaFactory::class,
+    App\Service\Samba::class => App\Service\SambaFactory::class,
     App\Service\Telegram::class => App\Service\TelegramFactory::class,
 ];

@@ -21,6 +21,8 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Throwable;
 
+use function Hyperf\Support\make;
+
 #[Command]
 class ReadSmbFileCommand extends HyperfCommand
 {

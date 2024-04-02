@@ -24,6 +24,8 @@ use Hyperf\Command\Annotation\Command;
 use PhpMqtt\Client\ConnectionSettings;
 use Hyperf\Command\Command as HyperfCommand;
 use Symfony\Component\Console\Input\InputArgument;
+use function Hyperf\Support\env;
+use function Hyperf\Config\config;
 
 #[Command]
 class SendFossnirLatestCommand extends HyperfCommand

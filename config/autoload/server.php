@@ -15,6 +15,7 @@ use Hyperf\Framework\Bootstrap\WorkerStartCallback;
 use Hyperf\Server\Event;
 use Hyperf\Server\Server;
 use Swoole\Constant;
+use function Hyperf\Support\env;
 
 return [
     'mode' => SWOOLE_PROCESS,

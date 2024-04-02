@@ -15,6 +15,7 @@ namespace App\Service;
 use Icewind\SMB\BasicAuth;
 use Icewind\SMB\Options;
 use Icewind\SMB\ServerFactory;
+use function Hyperf\Config\config;
 
 class Samba
 {
