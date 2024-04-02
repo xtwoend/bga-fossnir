@@ -30,7 +30,6 @@ class SambaFactory
     public function __invoke()
     {
         $config = $this->config->get('smb');
-        var_dump($config);
         return new Samba($config);
     }
 }
