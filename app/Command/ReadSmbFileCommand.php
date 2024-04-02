@@ -21,7 +21,10 @@ use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Throwable;
 
+
+
 use function Hyperf\Support\make;
+use function Hyperf\Collection\collect;
 
 #[Command]
 class ReadSmbFileCommand extends HyperfCommand
@@ -70,6 +73,13 @@ class ReadSmbFileCommand extends HyperfCommand
             if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0777);
             }
+
+            if(count($files) > 200) {
+                $collection =  collect($files);
+                $collection->splice(100);
+                $files = $collection->all();
+            }
+            
             foreach ($files as $file) {
                 if (! $file->isDirectory()) {
                     $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
