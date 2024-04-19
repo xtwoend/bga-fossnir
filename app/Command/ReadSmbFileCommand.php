@@ -12,19 +12,20 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use Throwable;
+use Carbon\Carbon;
+use App\Service\Samba;
 use App\Model\FossnirDir;
 use App\Model\ResultFile;
-use App\Service\Samba;
-use Hyperf\Command\Annotation\Command;
-use Hyperf\Command\Command as HyperfCommand;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Throwable;
-
-
-
 use function Hyperf\Support\make;
+use Psr\Container\ContainerInterface;
+use Hyperf\Command\Annotation\Command;
+
+
+
 use function Hyperf\Collection\collect;
+use Hyperf\Command\Command as HyperfCommand;
+use Symfony\Component\Console\Input\InputArgument;
 
 #[Command]
 class ReadSmbFileCommand extends HyperfCommand
@@ -79,12 +80,17 @@ class ReadSmbFileCommand extends HyperfCommand
                 throw new \Exception("Telalu banyak files dalam folder", 422);
                 
                 // $collection =  collect($files);
-                // $collection->splice(100);
+                // $collection->splice(50);
                 // $files = $collection->all();
             }
             
             foreach ($files as $file) {
                 if (! $file->isDirectory()) {
+                    // jika waktu modifikasi lebih dari 2 hari skip download
+                    if($file->getMTime() < Carbon::now()->subDays(2)->timestamp) {
+                        continue;
+                    }
+
                     $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
 
                     $count = ResultFile::table($dir->id)->where('filename', $file->getName())
