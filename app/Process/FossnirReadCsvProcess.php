@@ -22,7 +22,7 @@ class FossnirReadCsvProcess extends AbstractProcess
             foreach (FossnirDir::where('auto_read', 1)->get() as $dir) {
                 var_dump('On process process data '. $dir->mill_name);
                 $files = ResultFile::table($dir->id)->where('processed', 0)->get();
-                var_dump($files?->toArray());
+                // var_dump($files?->toArray());
                 foreach ($files as $file) {
                     $this->readFile($file);
                 }
@@ -39,7 +39,7 @@ class FossnirReadCsvProcess extends AbstractProcess
     protected function readFile($file)
     {
         $temp_file = $file->download_path;
-        var_dump($temp_file);
+        // var_dump($temp_file);
         if (is_file($temp_file)) {
             $rows = array_map('str_getcsv', file($temp_file));
             $header = array_shift($rows);
@@ -103,7 +103,7 @@ class FossnirReadCsvProcess extends AbstractProcess
                     continue;
                 }
             }
-            var_dump($data);
+            // var_dump($data);
             if (! empty($data) && isset($data['owm'], $data['vm'], $data['odm'], $data['nos'])) {
                 try {  
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
