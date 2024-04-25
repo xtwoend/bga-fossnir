@@ -31,138 +31,142 @@ class Telegram
         for ( ; ; sleep(3)) {
             $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
             foreach($updates->result as $update){
-               
-                if(isset($update->message)){
-                    $chat = $update->message->chat;
-                    $message = $update->message;
-                    
-                    $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                    
-                    $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
-
-                    if(property_exists($message, 'text')) {
+                try {   
+                    if(isset($update->message)){
+                        $chat = $update->message->chat;
+                        $message = $update->message;
                         
-                        $messageText = $message->text;
-                        if($messageText == '/start'){
-                            $this->bot->sendMessage([
-                                'chat_id' => $chat->id,
-                                'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
-                                'reply_markup' => json_encode([
-                                    'inline_keyboard' => [
-                                        [
-                                            [
-                                                'text' => $text, 'callback_data' => $exists > 0 ? 'non_active' : 'mill'
-                                            ]
-                                        ]
-                                    ]
-                                ]),
-                            ]);
-                        }
-                        if($messageText == '/notifikasi'){
-                            $this->bot->sendMessage([
-                                'chat_id' => $chat->id,
-                                'reply_markup' => json_encode([
-                                    'inline_keyboard' => [
-                                        [
-                                            [
-                                                'text' => $text, 'callback_data' => 'notif'
-                                            ]
-                                        ]
-                                    ]
-                                ]),
-                            ]);
-                        }
-                    }
-                }
-
-                if(isset($update->callback_query)) {
-                    $message = $update->callback_query;
-                    $chat = $update->callback_query->message->chat;
-                    
-                    if($message?->data == 'mill') {
-                        $mills_button = [];
-                        foreach(FossnirDir::orderBy('order')->get() as $mill) {
-                            $mills_button[] = [
-                                [
-                                    'text' => $mill->mill_name,
-                                    'callback_data' => (int) $mill->id,
-                                ]
-                            ];
-                        }
-                        $this->bot->sendMessage([
-                            'chat_id' => $chat->id,
-                            'text' => 'Pilih mill yang akan di monitor',
-                            'reply_markup' => json_encode([
-                                'inline_keyboard' => $mills_button,
-                            ]),
-                        ]);
-                    }
-
-                    if($message?->data == 'non_active') {
                         $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                        if($exists > 0) {
-                            TelegramUser::where('chat_id', $chat->id)->delete();
-                            $this->bot->sendMessage([
-                                'chat_id' => $chat->id,
-                                'text' => 'Notifikasi telah di non aktifkan',
-                                'reply_markup' => json_encode([
-                                    'inline_keyboard' => [
-                                        [
+                        
+                        $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
+
+                        if(property_exists($message, 'text')) {
+
+                            $messageText = $message->text;
+                            if($messageText == '/start'){
+                                $this->bot->sendMessage([
+                                    'chat_id' => $chat->id,
+                                    'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
+                                    'reply_markup' => json_encode([
+                                        'inline_keyboard' => [
                                             [
-                                                'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
+                                                [
+                                                    'text' => $text, 'callback_data' => $exists > 0 ? 'non_active' : 'mill'
+                                                ]
                                             ]
                                         ]
+                                    ]),
+                                ]);
+                            }
+                            if($messageText == '/notifikasi'){
+                                $this->bot->sendMessage([
+                                    'chat_id' => $chat->id,
+                                    'reply_markup' => json_encode([
+                                        'inline_keyboard' => [
+                                            [
+                                                [
+                                                    'text' => $text, 'callback_data' => 'notif'
+                                                ]
+                                            ]
+                                        ]
+                                    ]),
+                                ]);
+                            }
+                        }
+                    }
+
+                    if(isset($update->callback_query)) {
+                        $message = $update->callback_query;
+                        $chat = $update->callback_query->message->chat;
+                        
+                        if($message?->data == 'mill') {
+                            $mills_button = [];
+                            foreach(FossnirDir::orderBy('order')->get() as $mill) {
+                                $mills_button[] = [
+                                    [
+                                        'text' => $mill->mill_name,
+                                        'callback_data' => (int) $mill->id,
                                     ]
+                                ];
+                            }
+                            $this->bot->sendMessage([
+                                'chat_id' => $chat->id,
+                                'text' => 'Pilih mill yang akan di monitor',
+                                'reply_markup' => json_encode([
+                                    'inline_keyboard' => $mills_button,
                                 ]),
                             ]);
                         }
-                    }
-                    // 
-                    $millId = intval($message->data);
-                    if(is_numeric($millId) && $millId !== 0) {
-                        $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                        if($exists > 0) {
-                            TelegramUser::where('chat_id', $chat->id)->delete();
-                            $this->bot->sendMessage([
-                                'chat_id' => $chat->id,
-                                'text' => 'Notifikasi telah di non aktifkan',
-                                'reply_markup' => json_encode([
-                                    'inline_keyboard' => [
-                                        [
+
+                        if($message?->data == 'non_active') {
+                            $exists = TelegramUser::where('chat_id', $chat->id)->count();
+                            if($exists > 0) {
+                                TelegramUser::where('chat_id', $chat->id)->delete();
+                                $this->bot->sendMessage([
+                                    'chat_id' => $chat->id,
+                                    'text' => 'Notifikasi telah di non aktifkan',
+                                    'reply_markup' => json_encode([
+                                        'inline_keyboard' => [
                                             [
-                                                'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
+                                                [
+                                                    'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
+                                                ]
                                             ]
                                         ]
-                                    ]
-                                ]),
-                            ]);
-                        }else{
-                            
-                            TelegramUser::create([
-                                'chat_id' => $chat->id,
-                                'first_name' => $chat->first_name ?? null,
-                                'last_name' => $chat->last_name ?? null,
-                                'username' => $chat->username ?? null,
-                                'mill_id' => $message->data,
-                            ]);
-
-                            $mill = FossnirDir::find($message->data);
-
-                            $this->bot->sendMessage([
-                                'chat_id' => $chat->id,
-                                'text' => 'Notifikasi telah di aktifkan pada mill ' . $mill?->mill_name,
-                                'reply_markup' => json_encode([
-                                    'inline_keyboard' => [
-                                        [
+                                    ]),
+                                ]);
+                            }
+                        }
+                        // 
+                        $millId = intval($message->data);
+                        if(is_numeric($millId) && $millId !== 0) {
+                            $exists = TelegramUser::where('chat_id', $chat->id)->count();
+                            if($exists > 0) {
+                                TelegramUser::where('chat_id', $chat->id)->delete();
+                                $this->bot->sendMessage([
+                                    'chat_id' => $chat->id,
+                                    'text' => 'Notifikasi telah di non aktifkan',
+                                    'reply_markup' => json_encode([
+                                        'inline_keyboard' => [
                                             [
-                                                'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'non_active'
+                                                [
+                                                    'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
+                                                ]
                                             ]
                                         ]
-                                    ]
-                                ]),
-                            ]);
+                                    ]),
+                                ]);
+                            }else{
+                                
+                                TelegramUser::create([
+                                    'chat_id' => $chat->id,
+                                    'first_name' => $chat->first_name ?? null,
+                                    'last_name' => $chat->last_name ?? null,
+                                    'username' => $chat->username ?? null,
+                                    'mill_id' => $message->data,
+                                ]);
+
+                                $mill = FossnirDir::find($message->data);
+
+                                $this->bot->sendMessage([
+                                    'chat_id' => $chat->id,
+                                    'text' => 'Notifikasi telah di aktifkan pada mill ' . $mill?->mill_name,
+                                    'reply_markup' => json_encode([
+                                        'inline_keyboard' => [
+                                            [
+                                                [
+                                                    'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'non_active'
+                                                ]
+                                            ]
+                                        ]
+                                    ]),
+                                ]);
+                            }
                         }
                     }
+                    //code...
+                } catch (\Throwable $th) {
+                    var_dump($th->getMessage());
                 }
             }
         }
