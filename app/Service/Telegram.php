@@ -28,7 +28,7 @@ class Telegram
 
     public function listen()
     {
-        for ( ; ; sleep(2)) {
+        for ( ; ; sleep(3)) {
             $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
             foreach($updates->result as $update){
                
@@ -40,7 +40,9 @@ class Telegram
                     
                     $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
 
-                    if($message?->text == '/start'){
+                    $messageText = $message->text ?: null;
+
+                    if($messageText == '/start'){
                         $this->bot->sendMessage([
                             'chat_id' => $chat->id,
                             'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
@@ -55,7 +57,7 @@ class Telegram
                             ]),
                         ]);
                     }
-                    if($message?->text == '/notifikasi'){
+                    if($messageText == '/notifikasi'){
                         $this->bot->sendMessage([
                             'chat_id' => $chat->id,
                             'reply_markup' => json_encode([
