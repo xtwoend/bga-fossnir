@@ -22,6 +22,7 @@ class FossnirReadCsvProcess extends AbstractProcess
             foreach (FossnirDir::where('auto_read', 1)->get() as $dir) {
                 var_dump('On process process data '. $dir->mill_name);
                 $files = ResultFile::table($dir->mill_id)->where('processed', 0)->get();
+                var_dump($files?->toArray());
                 foreach ($files as $file) {
                     $this->readFile($file);
                 }
