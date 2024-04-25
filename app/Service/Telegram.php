@@ -40,7 +40,7 @@ class Telegram
                     
                     $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
 
-                    if($message->text == '/start'){
+                    if($message?->text == '/start'){
                         $this->bot->sendMessage([
                             'chat_id' => $chat->id,
                             'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
@@ -55,7 +55,7 @@ class Telegram
                             ]),
                         ]);
                     }
-                    if($message->text == '/notifikasi'){
+                    if($message?->text == '/notifikasi'){
                         $this->bot->sendMessage([
                             'chat_id' => $chat->id,
                             'reply_markup' => json_encode([
@@ -75,7 +75,7 @@ class Telegram
                     $message = $update->callback_query;
                     $chat = $update->callback_query->message->chat;
                     
-                    if($message->data == 'mill') {
+                    if($message?->data == 'mill') {
                         $mills_button = [];
                         foreach(FossnirDir::orderBy('order')->get() as $mill) {
                             $mills_button[] = [
@@ -94,7 +94,7 @@ class Telegram
                         ]);
                     }
 
-                    if($message->data == 'non_active') {
+                    if($message?->data == 'non_active') {
                         $exists = TelegramUser::where('chat_id', $chat->id)->count();
                         if($exists > 0) {
                             TelegramUser::where('chat_id', $chat->id)->delete();
