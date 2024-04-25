@@ -32,94 +32,94 @@ return [
         //     '--disable-event-dispatcher' => true,
         // ]),
 
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_01')->setRule('3 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 1,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_01')->setRule('3 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 1,
+            '--disable-event-dispatcher' => true,
+        ]),
 
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_02')->setRule('6 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 2,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_03')->setRule('9 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 3,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_04')->setRule('12 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 4,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_05')->setRule('16 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 5,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_06')->setRule('18 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 6,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_07')->setRule('21 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 7,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_08')->setRule('23 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 8,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_09')->setRule('26 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 9,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_10')->setRule('29 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 10,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_02')->setRule('6 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 2,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_03')->setRule('9 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 3,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_04')->setRule('12 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 4,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_05')->setRule('16 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 5,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_06')->setRule('18 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 6,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_07')->setRule('21 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 7,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_08')->setRule('23 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 8,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_09')->setRule('26 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 9,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_10')->setRule('29 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 10,
+            '--disable-event-dispatcher' => true,
+        ]),
 
-        // // potong di worker kedua
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_11')->setRule('33 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 11,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_12')->setRule('37 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 12,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_13')->setRule('39 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 13,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_14')->setRule('42 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 14,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_15')->setRule('46 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 15,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_16')->setRule('49 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 16,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
-        // (new Crontab())->setType('command')->setName('FossnirCSVParser_17')->setRule('53 * * * *')->setCallback([
-        //     'command' => 'fossnir:parse',
-        //     'mill_id' => 17,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
+        // potong di worker kedua
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_11')->setRule('33 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 11,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_12')->setRule('37 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 12,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_13')->setRule('39 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 13,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_14')->setRule('42 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 14,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_15')->setRule('46 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 15,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_16')->setRule('49 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 16,
+            '--disable-event-dispatcher' => true,
+        ]),
+        (new Crontab())->setType('command')->setName('FossnirCSVParser_17')->setRule('53 * * * *')->setCallback([
+            'command' => 'fossnir:parse',
+            'mill_id' => 17,
+            '--disable-event-dispatcher' => true,
+        ]),
 
         
         // // read
