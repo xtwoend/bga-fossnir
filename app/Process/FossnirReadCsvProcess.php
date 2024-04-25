@@ -32,13 +32,13 @@ class FossnirReadCsvProcess extends AbstractProcess
 
     public function isEnable($server): bool
     {
-        return false;
+        return true;
     }
 
     protected function readFile($file)
     {
         $temp_file = $file->download_path;
-
+        var_dump($temp_file);
         if (is_file($temp_file)) {
             $rows = array_map('str_getcsv', file($temp_file));
             $header = array_shift($rows);
@@ -102,7 +102,7 @@ class FossnirReadCsvProcess extends AbstractProcess
                     continue;
                 }
             }
-
+            var_dump($data);
             if (! empty($data) && isset($data['owm'], $data['vm'], $data['odm'], $data['nos'])) {
                 try {  
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
