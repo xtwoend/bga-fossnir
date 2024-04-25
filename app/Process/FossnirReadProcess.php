@@ -19,6 +19,7 @@ class FossnirReadProcess extends AbstractProcess
     {
         while (true) {
             foreach (FossnirDir::where('auto_read', 1)->get() as $dir) {
+                var_dump('On process check folder '. $$dir->mill_name);
                 $this->readAndDownload($dir);
             }
             sleep(1200);
