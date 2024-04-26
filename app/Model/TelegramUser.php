@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use App\Model\FossnirDir;
 use Hyperf\DbConnection\Model\Model;
 
 /**
@@ -26,4 +27,11 @@ class TelegramUser extends Model
     protected array $casts = [
         'last_chat_at' => 'datetime:Y-m-d H:i:s',
     ];
+
+    /**
+     * msi
+     */
+    public function mill() {
+        return $this->belongsTo(FossnirDir::class);
+    }
 }

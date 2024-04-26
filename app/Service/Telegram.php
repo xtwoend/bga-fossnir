@@ -117,6 +117,7 @@ class Telegram
                                 ]);
                             }
                         }
+                        
                         // 
                         $millId = intval($message->data);
                         if(is_numeric($millId) && $millId !== 0) {
@@ -138,21 +139,31 @@ class Telegram
                                 ]);
                             }else{
                                 
-                                TelegramUser::create([
+                                TelegramUser::updateOrCreate([
                                     'chat_id' => $chat->id,
+                                    'mill_id' => $message->data,
+                                ], [
                                     'first_name' => $chat->first_name ?? null,
                                     'last_name' => $chat->last_name ?? null,
                                     'username' => $chat->username ?? null,
-                                    'mill_id' => $message->data,
                                 ]);
 
-                                $mill = FossnirDir::find($message->data);
-
+                                $pantau = TelegramUser::where('chat_id', $chat->id)->get();
+                                $mills = [];
+                                foreach($pantau as $p) {
+                                    $mills[] = $p->mill?->mill_name;
+                                }
+                                
                                 $this->bot->sendMessage([
                                     'chat_id' => $chat->id,
-                                    'text' => 'Notifikasi telah di aktifkan pada mill ' . $mill?->mill_name,
+                                    'text' => 'Notifikasi telah di aktifkan pada mill ' . implode(', ', $mills),
                                     'reply_markup' => json_encode([
                                         'inline_keyboard' => [
+                                            [
+                                                [
+                                                    'text' => 'Tambahkan Mill Baru', 'callback_data' => 'mill'
+                                                ]
+                                            ],
                                             [
                                                 [
                                                     'text' => 'Non Aktifkan Notifikasi', 'callback_data' => 'non_active'
