@@ -13,7 +13,7 @@ class CreateTelegramUsersTable extends Migration
     {
         Schema::create('telegram_users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('chat_id');
+            $table->string('chat_id');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('username')->nullable();
