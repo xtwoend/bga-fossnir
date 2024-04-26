@@ -13,7 +13,8 @@ class Telegram
 {
     protected $bot;
 
-    public function __construct(string $token, $type = null) {
+    public function __construct(string $token, $type = null)
+    {
         $type = $type ?: Update::UPDATES_FROM_GET_UPDATES;
         $this->bot = new Bot($token, $type);
     }
@@ -28,22 +29,22 @@ class Telegram
 
     public function listen()
     {
-        for ( ; ; sleep(3)) {
+        for (;; sleep(3)) {
             $updates = $this->bot->updates(isset($updates) ? $updates->getLastUpdateId() : null);
-            foreach($updates->result as $update){
-                try {   
-                    if(isset($update->message)){
+            foreach ($updates->result as $update) {
+                try {
+                    if (isset($update->message)) {
                         $chat = $update->message->chat;
                         $message = $update->message;
-                        
+
                         $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                        
+
                         $text = $exists > 0 ? 'Non Aktifkan Notifikasi' : 'Aktifkan Notifikasi';
 
-                        if(property_exists($message, 'text')) {
+                        if (property_exists($message, 'text')) {
 
                             $messageText = $message->text;
-                            if($messageText == '/start'){
+                            if ($messageText == '/start') {
                                 $this->bot->sendMessage([
                                     'chat_id' => $chat->id,
                                     'text' => 'Selamat Datang Di PT Bumitama Gunajaya Agro.',
@@ -53,12 +54,17 @@ class Telegram
                                                 [
                                                     'text' => $text, 'callback_data' => $exists > 0 ? 'non_active' : 'mill'
                                                 ]
-                                            ]
+                                            ],
+                                            [
+                                                [
+                                                    'text' => 'Tambahkan Mill Baru', 'callback_data' => 'mill'
+                                                ]
+                                            ],
                                         ]
                                     ]),
                                 ]);
                             }
-                            if($messageText == '/notifikasi'){
+                            if ($messageText == '/notifikasi') {
                                 $this->bot->sendMessage([
                                     'chat_id' => $chat->id,
                                     'reply_markup' => json_encode([
@@ -75,13 +81,13 @@ class Telegram
                         }
                     }
 
-                    if(isset($update->callback_query)) {
+                    if (isset($update->callback_query)) {
                         $message = $update->callback_query;
                         $chat = $update->callback_query->message->chat;
-                        
-                        if($message?->data == 'mill') {
+
+                        if ($message?->data == 'mill') {
                             $mills_button = [];
-                            foreach(FossnirDir::orderBy('order')->get() as $mill) {
+                            foreach (FossnirDir::orderBy('order')->get() as $mill) {
                                 $mills_button[] = [
                                     [
                                         'text' => $mill->mill_name,
@@ -98,9 +104,9 @@ class Telegram
                             ]);
                         }
 
-                        if($message?->data == 'non_active') {
+                        if ($message?->data == 'non_active') {
                             $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                            if($exists > 0) {
+                            if ($exists > 0) {
                                 TelegramUser::where('chat_id', $chat->id)->delete();
                                 $this->bot->sendMessage([
                                     'chat_id' => $chat->id,
@@ -117,28 +123,27 @@ class Telegram
                                 ]);
                             }
                         }
-                        
+
                         // 
                         $millId = intval($message->data);
-                        if(is_numeric($millId) && $millId !== 0) {
-                            $exists = TelegramUser::where('chat_id', $chat->id)->count();
-                            if($exists > 0) {
-                                TelegramUser::where('chat_id', $chat->id)->delete();
-                                $this->bot->sendMessage([
-                                    'chat_id' => $chat->id,
-                                    'text' => 'Notifikasi telah di non aktifkan',
-                                    'reply_markup' => json_encode([
-                                        'inline_keyboard' => [
-                                            [
-                                                [
-                                                    'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
-                                                ]
-                                            ]
-                                        ]
-                                    ]),
-                                ]);
-                            }else{
-                                
+                        if (is_numeric($millId) && $millId !== 0) {
+                            // $exists = TelegramUser::where('chat_id', $chat->id)->count();
+                            // if ($exists > 0) {
+                            //     TelegramUser::where('chat_id', $chat->id)->delete();
+                            //     $this->bot->sendMessage([
+                            //         'chat_id' => $chat->id,
+                            //         'text' => 'Notifikasi telah di non aktifkan',
+                            //         'reply_markup' => json_encode([
+                            //             'inline_keyboard' => [
+                            //                 [
+                            //                     [
+                            //                         'text' => 'Aktifkan Notifikasi', 'callback_data' => 'mill'
+                            //                     ]
+                            //                 ]
+                            //             ]
+                            //         ]),
+                            //     ]);
+                            // } else {
                                 TelegramUser::updateOrCreate([
                                     'chat_id' => $chat->id,
                                     'mill_id' => $message->data,
@@ -150,10 +155,10 @@ class Telegram
 
                                 $pantau = TelegramUser::where('chat_id', $chat->id)->get();
                                 $mills = [];
-                                foreach($pantau as $p) {
+                                foreach ($pantau as $p) {
                                     $mills[] = $p->mill?->mill_name;
                                 }
-                                
+
                                 $this->bot->sendMessage([
                                     'chat_id' => $chat->id,
                                     'text' => 'Notifikasi telah di aktifkan pada mill ' . implode(', ', $mills),
@@ -172,7 +177,7 @@ class Telegram
                                         ]
                                     ]),
                                 ]);
-                            }
+                            // }
                         }
                     }
                     //code...
