@@ -34,7 +34,7 @@ class FossnirHandler
 
 
     public function process($date, $mill) {
-        var_dump($mill->id);
+        // var_dump($mill->id);
 
         $groups = GroupProduct::where('mill_id', $mill->id)->get();
         foreach($groups as $group)

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Process;
 
 use Throwable;
-use Carbon\Carbon;
 use App\Service\Samba;
 use App\Model\FossnirDir;
 use App\Model\ResultFile;
