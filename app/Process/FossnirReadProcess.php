@@ -37,7 +37,7 @@ class FossnirReadProcess extends AbstractProcess
                 mkdir($tempDir, 0777);
             }
 
-            if(count($files) > 250) {
+            if(count($files) > 500) {
 
                 throw new \Exception("Telalu banyak files dalam folder", 422);
                 
