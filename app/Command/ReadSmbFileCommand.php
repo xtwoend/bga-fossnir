@@ -30,6 +30,8 @@ use Symfony\Component\Console\Input\InputArgument;
 #[Command]
 class ReadSmbFileCommand extends HyperfCommand
 {
+    protected $limit = 200;
+
     public function __construct(protected ContainerInterface $container)
     {
         parent::__construct('fossnir:read-file');
@@ -44,7 +46,8 @@ class ReadSmbFileCommand extends HyperfCommand
     public function handle()
     {
         $mill_id = $this->input->getArgument('mill_id');
-
+        $this->limit = $this->input->getArgument('limit', 200);
+        
         if ($mill_id) {
             $dir = FossnirDir::find($mill_id);
             if ($dir) {
@@ -61,6 +64,7 @@ class ReadSmbFileCommand extends HyperfCommand
     {
         return [
             ['mill_id', InputArgument::OPTIONAL, 'mill id'],
+            ['limit', InputArgument::OPTIONAL, 'limi read file']
         ];
     }
 
@@ -75,7 +79,7 @@ class ReadSmbFileCommand extends HyperfCommand
                 mkdir($tempDir, 0777);
             }
 
-            if(count($files) > 200) {
+            if(count($files) > $this->limit) {
 
                 throw new \Exception("Telalu banyak files dalam folder", 422);
                 
