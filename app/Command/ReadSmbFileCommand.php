@@ -91,9 +91,9 @@ class ReadSmbFileCommand extends HyperfCommand
             foreach ($files as $file) {
                 if (! $file->isDirectory()) {
                     // jika waktu modifikasi lebih dari 2 hari skip download
-                    if($file->getMTime() < Carbon::now()->subDays(2)->timestamp) {
-                        continue;
-                    }
+                    // if($file->getMTime() < Carbon::now()->subDays(2)->timestamp) {
+                    //     continue;
+                    // }
 
                     $tempFile = $tempDir . '/' . str_replace(' ', '_', $file->getName());
 
