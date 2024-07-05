@@ -93,12 +93,12 @@ class FossnirReadCsvProcess extends AbstractProcess
                         }
                     }
                 } catch (Throwable $th) {
-                    $file->update(['processed' => 1]);
+                    // $file->update(['processed' => 1]);
                     var_dump($th->getMessage());
 
-                    if(file_exists($temp_file)) {
-                        unlink($temp_file);
-                    }
+                    // if(file_exists($temp_file)) {
+                    //     unlink($temp_file);
+                    // }
 
                     continue;
                 }
@@ -114,16 +114,16 @@ class FossnirReadCsvProcess extends AbstractProcess
                     }
                 } catch (Throwable $th) {
                     var_dump($th->getMessage());
-                    if(file_exists($temp_file)) {
-                        unlink($temp_file);
-                    }
+                    // if(file_exists($temp_file)) {
+                    //     unlink($temp_file);
+                    // }
                 }
             }else{
                 var_dump('is data empty');
-                $file->update(['processed' => 1]);
-                if(file_exists($temp_file)) {
-                    unlink($temp_file);
-                }
+                // $file->update(['processed' => 1]);
+                // if(file_exists($temp_file)) {
+                //     unlink($temp_file);
+                // }
             }
         }
     }
