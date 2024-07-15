@@ -14,7 +14,7 @@ namespace App\Command;
 
 use Throwable;
 use Carbon\Carbon;
-use App\Model\CSVRead;
+use App\Model\FossnirDir;
 use App\Model\ResultFile;
 use App\Model\FossnirData;
 use App\Event\NewFossnirData;
@@ -66,7 +66,7 @@ class ReadCsvFileCommand extends HyperfCommand
     protected function readFile($file)
     {
         $temp_file = $file->download_path;
-
+        // var_dump($temp_file);
         if (is_file($temp_file)) {
             $rows = array_map('str_getcsv', file($temp_file));
             $header = array_shift($rows);
@@ -120,17 +120,17 @@ class ReadCsvFileCommand extends HyperfCommand
                         }
                     }
                 } catch (Throwable $th) {
-                    $file->update(['processed' => 1]);
+                    // $file->update(['processed' => 1]);
                     var_dump($th->getMessage());
 
-                    if(file_exists($temp_file)) {
-                        unlink($temp_file);
-                    }
+                    // if(file_exists($temp_file)) {
+                    //     unlink($temp_file);
+                    // }
 
                     continue;
                 }
             }
-
+            // var_dump($data);
             if (! empty($data) && isset($data['owm'], $data['vm'], $data['odm'], $data['nos'])) {
                 try {  
                     $fossnir_data = FossnirData::table($file->mill_id)->create($data);
@@ -139,18 +139,18 @@ class ReadCsvFileCommand extends HyperfCommand
                     if(file_exists($temp_file)) {
                         unlink($temp_file);
                     }
-                } catch (\Throwable $th) {
+                } catch (Throwable $th) {
                     var_dump($th->getMessage());
-                    if(file_exists($temp_file)) {
-                        unlink($temp_file);
-                    }
+                    // if(file_exists($temp_file)) {
+                    //     unlink($temp_file);
+                    // }
                 }
             }else{
                 var_dump('is data empty');
-                $file->update(['processed' => 1]);
-                if(file_exists($temp_file)) {
-                    unlink($temp_file);
-                }
+                // $file->update(['processed' => 1]);
+                // if(file_exists($temp_file)) {
+                //     unlink($temp_file);
+                // }
             }
         }
     }
