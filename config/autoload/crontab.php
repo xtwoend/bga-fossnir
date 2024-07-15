@@ -143,11 +143,11 @@ return [
         //     'mill_id' => 4,
         //     '--disable-event-dispatcher' => true,
         // ]),
-        // (new Crontab())->setType('command')->setName('ReadFileFossnir_05')->setRule('20 * * * *')->setCallback([
-        //     'command' => 'fossnir:read-file',
-        //     'mill_id' => 5,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
+        (new Crontab())->setType('command')->setName('ReadFileFossnir_05')->setRule('20 * * * *')->setCallback([
+            'command' => 'fossnir:read-file',
+            'mill_id' => 5,
+            '--disable-event-dispatcher' => true,
+        ]),
         // (new Crontab())->setType('command')->setName('ReadFileFossnir_06')->setRule('25 * * * *')->setCallback([
         //     'command' => 'fossnir:read-file',
         //     'mill_id' => 6,
