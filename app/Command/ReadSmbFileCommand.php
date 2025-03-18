@@ -79,9 +79,10 @@ class ReadSmbFileCommand extends HyperfCommand
                 mkdir($tempDir, 0777);
             }
 
-            if(count($files) > $this->limit) {
+            $con = count($files);
+            if($con > $this->limit) {
 
-                throw new \Exception("Telalu banyak files dalam folder di folder {$dir->dir_path}", 422);
+                throw new \Exception("Telalu banyak files dalam folder di folder {$dir->dir_path} ({$con})", 422);
                 
                 // $collection =  collect($files);
                 // $collection->splice(50);
