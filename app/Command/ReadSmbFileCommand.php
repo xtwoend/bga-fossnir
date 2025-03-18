@@ -46,7 +46,7 @@ class ReadSmbFileCommand extends HyperfCommand
     public function handle()
     {
         $mill_id = $this->input->getArgument('mill_id');
-        $this->limit = $this->input->getArgument('limit', 200);
+        $this->limit = $this->input->getArgument('limit', 1000);
         
         if ($mill_id) {
             $dir = FossnirDir::find($mill_id);
