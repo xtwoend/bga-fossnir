@@ -10,6 +10,8 @@ use App\Model\FossnirDir;
 use App\Model\ResultFile;
 use Hyperf\Process\AbstractProcess;
 use Hyperf\Process\Annotation\Process;
+use function \Hyperf\Support\env;
+
 
 #[Process(name: 'FossnirReadProcess')]
 class FossnirReadProcess extends AbstractProcess
