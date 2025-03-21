@@ -71,7 +71,7 @@ class ReadSmbFileCommand extends HyperfCommand
             $files = $smb->dir($dir->dir_path);
             $tempDir = env('TEMP_PATH') . '/temp' . strtolower($dir->dir_path);
             // $tempDir = BASE_PATH . '/temp' . strtolower($dir->dir_path);
-
+            var_dump($tempDir);
             if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0777);
             }
