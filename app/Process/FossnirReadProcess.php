@@ -31,7 +31,8 @@ class FossnirReadProcess extends AbstractProcess
         $smb = make(Samba::class);
         try {
             $files = $smb->dir($dir->dir_path);
-            $tempDir = BASE_PATH . '/temp' . strtolower($dir->dir_path);
+            // $tempDir = BASE_PATH . '/temp' . strtolower($dir->dir_path);
+            $tempDir = env('TEMP_PATH') . '/temp' . strtolower($dir->dir_path);
 
             if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0777);
