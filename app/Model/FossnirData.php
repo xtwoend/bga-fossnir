@@ -105,8 +105,8 @@ class FossnirData extends Model
             
             $treshold = FossnirThreshold::where('mill_id', $model->mill_id)->where('group_id', $inGroup->group_id)->where('parameter', 'owm')->first();
             if($treshold && $model->owm > $treshold->threshold) {
-                $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
-                $t = make(\App\Service\Telegram::class);
+                // $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
+                // $t = make(\App\Service\Telegram::class);
                 $text = sprintf("%s aktual %.2f %%  diatas standart %.2f %% O/WM", $model->product_name, $model->owm, $treshold->threshold);
                 $text = "[{$mill->mill_name}][{$model->sample_date}] {$text}";
                
@@ -115,9 +115,9 @@ class FossnirData extends Model
                     'content' => $text,
                 ]);
 
-                foreach($users as $user) {
-                    $t->send($user->chat_id, $text);
-                }
+                // foreach($users as $user) {
+                //     $t->send($user->chat_id, $text);
+                // }
             }
         }
     }
