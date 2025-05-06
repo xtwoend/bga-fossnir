@@ -44,7 +44,11 @@ class News extends Model
         $users = \App\Model\TelegramUser::where('mill_id', $model->mill_id)->get();
         $t = make(\App\Service\Telegram::class);
         foreach($users as $user) {
-            $t->send($user->chat_id, $model->content);
+            try {
+                $t->send($user->chat_id, $model->content);
+            } catch (\TelegramSDK\BotAPI\Exception\TelegramException $e) {
+                // Handle the exception if needed
+            }
         }
     }
 }
