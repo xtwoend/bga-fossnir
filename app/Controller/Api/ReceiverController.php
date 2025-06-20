@@ -40,7 +40,6 @@ class ReceiverController
 
         
         // Trigger the event
-       
 
         return $response->json([
             'error' => 0, 
