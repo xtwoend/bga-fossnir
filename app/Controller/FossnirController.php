@@ -21,6 +21,8 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Contract\RequestInterface;
 
+use function Hyperf\Collection\collect;
+
 #[Controller(prefix: '/fossnir')]
 class FossnirController
 {
@@ -51,7 +53,7 @@ class FossnirController
     }
 
     #[RequestMapping(path: 'mill/{id}', methods: 'delete')]
-    public function destroy(RequestInterface $request)
+    public function destroy($id, RequestInterface $request)
     {
         $dir = FossnirDir::find($id)->delete();
         if ($dir) {
