@@ -52,7 +52,7 @@ class ReceiverController
     #[RequestMapping(path: '/api/samples', methods: 'GET')]
     public function last(RequestInterface $request, ResponseInterface $response)
     {
-        $samples = Sample::byDate(date('Y-m-d'))->latest()->limit(50);
+        $samples = Sample::byDate(date('Y-m-d'))->orderBy('sample_date', 'desc')->limit(50)->get();
 
         return $response->json([
             'error' => 0, 
