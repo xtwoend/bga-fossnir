@@ -14,26 +14,27 @@ use Hyperf\HttpServer\Annotation\RequestMapping;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 
-#[Controller(prefix: '/api')]
+#[Controller]
 class ReceiverController
 {
 
-    #[RequestMapping(path: '/oil/loses', methods: 'POST')]
+    #[RequestMapping(path: '/api/oil/loses', methods: 'POST')]
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
 
-        $data = collect($request->data);
+        $data = collect($request->input('data', []));
 
         $samples = [];
         $data->each(function($row) use (&$samples) {
             $rw = (object) $row;
+            
             $samples[] = Sample::byDate($rw->sample_date)->updateOrCreate([
                 'sample_date' => $rw->sample_date,
                 'device_id' => $rw->device_id,
                 'product_name' => $rw->product_name,
                 'parameter' => $rw->parameter
             ], [
-                'result' => $rw->result
+                'result' => (float) $rw->result
             ]);
         });
 

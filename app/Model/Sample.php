@@ -26,7 +26,7 @@ class Sample extends Model
     public static function byDate(string $date)
     {
         $date = strtotime($date);
-        $table = 'oil_losses_' . date('Ym', $date);
+        $table = 'samples_' . date('Ym', $date);
 
         $model = new self;
         
@@ -42,7 +42,7 @@ class Sample extends Model
             $query = 'CREATE TABLE `' . $table . '` LIKE `samples`;';
             Db::statement($query);
         }
-
+        
         return self::setTable($table);
     }
 
