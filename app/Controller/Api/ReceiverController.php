@@ -48,4 +48,15 @@ class ReceiverController
             'count' => count($samples)
         ], 200);
     }
+
+    #[RequestMapping(path: '/api/samples', methods: 'GET')]
+    public function last(RequestInterface $request, ResponseInterface $response)
+    {
+        $samples = Sample::byDate(date('Y-m-d'))->latest()->limit(50);
+
+        return $response->json([
+            'error' => 0, 
+            'data' => $samples
+        ], 200);
+    }
 }
