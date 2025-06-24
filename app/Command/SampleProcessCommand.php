@@ -40,13 +40,14 @@ class SampleProcessCommand extends HyperfCommand
             ->groupBy('device_id', 'sample_date', 'product_name')
             ->get();
 
+
         foreach($samples as $sample) {
             $fossnir_data = FossnirData::table($sample->mill_id)->updateOrCreate([
                 'mill_id' => $sample->mill_id,
                 'sample_date' => $sample->sample_date,
-                'instrument_serial' => '--',
                 'product_name' => $sample->product_name
             ],[
+                'instrument_serial' => 'N/A',
                 'owm' => $sample->owm,
                 'vm' => $sample->vm,
                 'odm' => $sample->odm,
