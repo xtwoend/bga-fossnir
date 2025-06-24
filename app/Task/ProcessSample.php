@@ -43,9 +43,9 @@ class ProcessSample
             $fossnir_data = FossnirData::table($sample->mill_id)->updateOrCreate([
                 'mill_id' => $sample->mill_id,
                 'sample_date' => $sample->sample_date,
-                'instrument_serial' => '--',
                 'product_name' => $sample->product_name
             ],[
+                'instrument_serial' => 'N/A',
                 'owm' => $sample->owm,
                 'vm' => $sample->vm,
                 'odm' => $sample->odm,
