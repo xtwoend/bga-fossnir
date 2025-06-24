@@ -9,7 +9,7 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\Crontab\Annotation\Crontab;
 use Hyperf\Contract\StdoutLoggerInterface;
 
-#[Crontab(name: "ProcessSample", rule: "* * * * *", callback: "execute", memo: "process samples")]
+#[Crontab(name: "ProcessSample", rule: "*/15 * * * *", callback: "execute", memo: "process samples")]
 class ProcessSample
 {
     #[Inject]
