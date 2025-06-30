@@ -54,9 +54,9 @@ class ReceiverController
         $samples = Sample::byDate(date('Y-m-d'));
 
         if($request->has('device_id')) {
-            $samples = $samples->where('device_id', $request->input('device_id ', ''));
+            $samples = $samples->where('device_id', (int) $request->input('device_id'));
         }   
-        
+
         $samples = $samples->orderBy('sample_date', 'desc')
             ->limit(50)
             ->get();
