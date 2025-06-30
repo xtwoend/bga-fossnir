@@ -51,7 +51,15 @@ class ReceiverController
     #[RequestMapping(path: '/api/samples', methods: 'GET')]
     public function last(RequestInterface $request, ResponseInterface $response)
     {
-        $samples = Sample::byDate(date('Y-m-d'))->orderBy('sample_date', 'desc')->limit(50)->get();
+        $samples = Sample::byDate(date('Y-m-d'));
+
+        if($request->has('device_id')) {
+            $samples = $samples->where('device_id', $request->input('device_id ', ''));
+        }   
+        
+        $samples = $samples->orderBy('sample_date', 'desc')
+            ->limit(50)
+            ->get();
 
         return $response->json([
             'error' => 0, 
