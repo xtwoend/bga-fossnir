@@ -46,17 +46,23 @@ class SendFossnirLatestCommand extends HyperfCommand
         $mill_id = $this->input->getArgument('mill_id');
         $date = $this->input->getArgument('date') ?? Carbon::now()->format('Y-m-d');
 
-       
         if ($mill_id) {
             $mill = FossnirDir::find($mill_id);
-            $products = FossnirData::table($mill_id)->select('product_name')->groupBy('product_name')->pluck('product_name')->toArray();
+            $products = FossnirData::table($mill_id)
+                ->select('product_name')
+                ->groupBy('product_name')
+                ->pluck('product_name')
+                ->toArray();
+
             $data =  [];
             foreach($products as $product){
-                $latest = FossnirData::table($mill_id)->where('product_name', $product)->orderBy('sample_date', 'desc')->first();
+                $latest = FossnirData::table($mill_id)->where('product_name', $product)->orderBy('sample_date', 'desc')->limit(2)->get();
                 if($latest) {
                     $data[$product] = $latest->toArray();
                 }
             }
+            
+            // var_dump($data);
             $this->send('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
             if ((bool) env('APP_DEBUG', false)) {
                 $this->send2('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
