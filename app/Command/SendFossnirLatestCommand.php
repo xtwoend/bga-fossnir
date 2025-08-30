@@ -65,11 +65,11 @@ class SendFossnirLatestCommand extends HyperfCommand
                 }
             }
             
-            var_dump($data);
+            // var_dump($data);
             $this->send('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
-            if ((bool) env('APP_DEBUG', false)) {
-                $this->send2('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
-            }
+            // if ((bool) env('APP_DEBUG', false)) {
+            //     $this->send2('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
+            // }
         }
     }
 
