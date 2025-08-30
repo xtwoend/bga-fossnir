@@ -53,11 +53,11 @@ return [
         //     'mill_id' => 4,
         //     '--disable-event-dispatcher' => true,
         // ]),
-        (new Crontab())->setType('command')->setName('FossnirCSVParser_05')->setRule('16 * * * *')->setCallback([
-            'command' => 'fossnir:parse',
-            'mill_id' => 5,
-            '--disable-event-dispatcher' => true,
-        ]),
+        // (new Crontab())->setType('command')->setName('FossnirCSVParser_05')->setRule('* * * * *')->setCallback([
+        //     'command' => 'fossnir:parse',
+        //     'mill_id' => 5,
+        //     '--disable-event-dispatcher' => true,
+        // ]),
         // (new Crontab())->setType('command')->setName('FossnirCSVParser_06')->setRule('18 * * * *')->setCallback([
         //     'command' => 'fossnir:parse',
         //     'mill_id' => 6,
@@ -143,11 +143,11 @@ return [
         //     'mill_id' => 4,
         //     '--disable-event-dispatcher' => true,
         // ]),
-        (new Crontab())->setType('command')->setName('ReadFileFossnir_05')->setRule('20 * * * *')->setCallback([
-            'command' => 'fossnir:read-file',
-            'mill_id' => 5,
-            '--disable-event-dispatcher' => true,
-        ]),
+        // (new Crontab())->setType('command')->setName('ReadFileFossnir_05')->setRule('20 * * * *')->setCallback([
+        //     'command' => 'fossnir:read-file',
+        //     'mill_id' => 5,
+        //     '--disable-event-dispatcher' => true,
+        // ]),
         // (new Crontab())->setType('command')->setName('ReadFileFossnir_06')->setRule('25 * * * *')->setCallback([
         //     'command' => 'fossnir:read-file',
         //     'mill_id' => 6,
