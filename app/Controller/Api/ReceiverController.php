@@ -23,7 +23,7 @@ class ReceiverController
     {
 
         $data = collect($request->input('data', []));
-        var_dump($data->toArray());
+        // var_dump($data->toArray());
         $samples = [];
         $data->each(function($row) use (&$samples) {
             $rw = (object) $row;
