@@ -1,0 +1,740 @@
+{
+  "info": {
+    "name": "PT BGA Fossnir API",
+    "description": "Collection of API endpoints for PT BGA Fossnir application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "fossnir-api"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:9501",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "News",
+      "item": [
+        {
+          "name": "Get Latest News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/news?mill_id=",
+              "host": ["{{base_url}}"],
+              "path": ["news"],
+              "query": [
+                {
+                  "key": "mill_id",
+                  "value": "",
+                  "description": "Optional: Filter by mill ID"
+                }
+              ]
+            },
+            "description": "Get latest news, optionally filtered by mill_id"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Fossnir",
+      "item": [
+        {
+          "name": "Get Mills (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/mill",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "mill"]
+            },
+            "description": "Get paginated list of mills (10 per page)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mill by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/mill/:id",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "mill", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get specific mill details by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Mill",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mill_name\": \"Updated Mill Name\",\n  \"order\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/fossnir/mill/:id",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "mill", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Update mill information"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Mill",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/mill/:id",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "mill", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Delete mill by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mill Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/report/:id?from=2025-01-01&to=2025-01-05&product=&parameter=",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "report", ":id"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2025-01-01",
+                  "description": "Start date (default: yesterday)"
+                },
+                {
+                  "key": "to",
+                  "value": "2025-01-05",
+                  "description": "End date (default: today)"
+                },
+                {
+                  "key": "product",
+                  "value": "",
+                  "description": "Product name filter"
+                },
+                {
+                  "key": "parameter",
+                  "value": "",
+                  "description": "Parameter filter"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get mill report data with date range and filters"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Report Losses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/report/:id/losses?from=2025-01-01&to=2025-01-05&parameter=Oil/WM",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "report", ":id", "losses"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2025-01-01",
+                  "description": "Start date"
+                },
+                {
+                  "key": "to",
+                  "value": "2025-01-05",
+                  "description": "End date"
+                },
+                {
+                  "key": "parameter",
+                  "value": "Oil/WM",
+                  "description": "Parameter (default: Oil/WM)"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get report parameter losses data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Mill",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/products/:id?from=2025-01-01&to=2025-01-05",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "products", ":id"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2025-01-01",
+                  "description": "Start date"
+                },
+                {
+                  "key": "to",
+                  "value": "2025-01-05",
+                  "description": "End date"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get list of product names for specific mill"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Mills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/mills",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "mills"]
+            },
+            "description": "Get all mills ordered by 'order' field"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Data",
+      "item": [
+        {
+          "name": "Get Stations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/stations",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "stations"]
+            },
+            "description": "Get all fossnir stations/groups"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Fossnir Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/data?date=2025-01-05&group_id=4&parameter=owm&mill_id=",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "data"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-01-05",
+                  "description": "Date (default: today)"
+                },
+                {
+                  "key": "group_id",
+                  "value": "4",
+                  "description": "Group ID (default: 4)"
+                },
+                {
+                  "key": "parameter",
+                  "value": "owm",
+                  "description": "Parameter: owm, vm, odm, nos (default: owm)"
+                },
+                {
+                  "key": "mill_id",
+                  "value": "",
+                  "description": "Optional mill ID filter, use 999 for all mills"
+                }
+              ]
+            },
+            "description": "Get fossnir data with 2-hour intervals from 05:00 to 05:00 next day"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Daily Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fossnir/daily?date=2025-01-05&group_id=4&parameter=owm",
+              "host": ["{{base_url}}"],
+              "path": ["fossnir", "daily"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-01-05",
+                  "description": "Date"
+                },
+                {
+                  "key": "group_id",
+                  "value": "4",
+                  "description": "Group ID"
+                },
+                {
+                  "key": "parameter",
+                  "value": "owm",
+                  "description": "Parameter"
+                }
+              ]
+            },
+            "description": "Get daily fossnir data summary"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Telegram",
+      "item": [
+        {
+          "name": "Get Telegram Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/telegram/users",
+              "host": ["{{base_url}}"],
+              "path": ["telegram", "users"]
+            },
+            "description": "Get paginated list of telegram users (25 per page)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Threshold",
+      "item": [
+        {
+          "name": "Get Thresholds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/thresholds?mill_id=1&parameter=&group_id=",
+              "host": ["{{base_url}}"],
+              "path": ["thresholds"],
+              "query": [
+                {
+                  "key": "mill_id",
+                  "value": "1",
+                  "description": "Mill ID (required)"
+                },
+                {
+                  "key": "parameter",
+                  "value": "",
+                  "description": "Optional parameter filter"
+                },
+                {
+                  "key": "group_id",
+                  "value": "",
+                  "description": "Optional group ID filter"
+                }
+              ]
+            },
+            "description": "Get thresholds with pagination (200 per page)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Threshold",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mill_id\": 1,\n  \"group_id\": 4,\n  \"parameter\": \"owm\",\n  \"threshold\": 10.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/threshold-update",
+              "host": ["{{base_url}}"],
+              "path": ["threshold-update"]
+            },
+            "description": "Create or update threshold value"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Threshold",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/threshold-delete/:id",
+              "host": ["{{base_url}}"],
+              "path": ["threshold-delete", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Threshold ID"
+                }
+              ]
+            },
+            "description": "Delete threshold by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/groups?mill_id=&group_id=",
+              "host": ["{{base_url}}"],
+              "path": ["groups"],
+              "query": [
+                {
+                  "key": "mill_id",
+                  "value": "",
+                  "description": "Optional mill ID filter"
+                },
+                {
+                  "key": "group_id",
+                  "value": "",
+                  "description": "Optional group ID filter"
+                }
+              ]
+            },
+            "description": "Get group products with pagination (200 per page)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mill_id\": 1,\n  \"group_id\": 4,\n  \"product_name\": \"Product Name\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/group-update",
+              "host": ["{{base_url}}"],
+              "path": ["group-update"]
+            },
+            "description": "Create or update group product"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/group-delete/:id",
+              "host": ["{{base_url}}"],
+              "path": ["group-delete", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Group Product ID"
+                }
+              ]
+            },
+            "description": "Delete group product by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Mill",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?mill_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "mill_id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get list of product names from FossnirData table"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "item": [
+        {
+          "name": "Get Mill Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/mill/performance?mill_id=1&type=day&date=2025-01-05",
+              "host": ["{{base_url}}"],
+              "path": ["mill", "performance"],
+              "query": [
+                {
+                  "key": "mill_id",
+                  "value": "1",
+                  "description": "Mill ID (required)"
+                },
+                {
+                  "key": "type",
+                  "value": "day",
+                  "description": "Type: day, month, or year"
+                },
+                {
+                  "key": "date",
+                  "value": "2025-01-05",
+                  "description": "Date for calculation (default: today)"
+                }
+              ]
+            },
+            "description": "Get mill performance score by day/month/year"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Standard Oil Losses",
+      "item": [
+        {
+          "name": "Get Oil Losses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/std/oil/losses?rowsPerPage=15&mill_id=",
+              "host": ["{{base_url}}"],
+              "path": ["std", "oil", "losses"],
+              "query": [
+                {
+                  "key": "rowsPerPage",
+                  "value": "15",
+                  "description": "Rows per page (default: 15)"
+                },
+                {
+                  "key": "mill_id",
+                  "value": "",
+                  "description": "Optional mill ID filter"
+                }
+              ]
+            },
+            "description": "Get paginated list of standard oil losses"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Oil Loss by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/std/oil/losses/:id",
+              "host": ["{{base_url}}"],
+              "path": ["std", "oil", "losses", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Oil Loss ID"
+                }
+              ]
+            },
+            "description": "Get specific oil loss record by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Oil Loss",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mill_id\": 1,\n  \"parameter\": \"Oil/WM\",\n  \"product_name\": \"Product Name\",\n  \"std_value\": 5.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/std/oil/losses",
+              "host": ["{{base_url}}"],
+              "path": ["std", "oil", "losses"]
+            },
+            "description": "Create or update oil loss standard value"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Oil Loss",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/std/oil/losses/:id",
+              "host": ["{{base_url}}"],
+              "path": ["std", "oil", "losses", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Oil Loss ID"
+                }
+              ]
+            },
+            "description": "Delete oil loss record by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Mill",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/std/oil/products/:id",
+              "host": ["{{base_url}}"],
+              "path": ["std", "oil", "products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "Mill ID"
+                }
+              ]
+            },
+            "description": "Get list of product names for specific mill from FossnirProduct"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API Receiver",
+      "item": [
+        {
+          "name": "Post Oil Loses Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"sample_date\": \"2025-01-05 10:00:00\",\n      \"device_id\": 1,\n      \"product_name\": \"Product A\",\n      \"parameter\": \"Oil/WM\",\n      \"result\": 5.5\n    },\n    {\n      \"sample_date\": \"2025-01-05 11:00:00\",\n      \"device_id\": 1,\n      \"product_name\": \"Product B\",\n      \"parameter\": \"Oil/WM\",\n      \"result\": 6.2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/oil/loses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "oil", "loses"]
+            },
+            "description": "Post oil loses data to be recorded in samples table"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Last Samples",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/samples?device_id=",
+              "host": ["{{base_url}}"],
+              "path": ["api", "samples"],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "",
+                  "description": "Optional device ID filter"
+                }
+              ]
+            },
+            "description": "Get last 50 samples ordered by date descending"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
