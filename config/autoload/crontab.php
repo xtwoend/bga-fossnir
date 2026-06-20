@@ -282,10 +282,10 @@ return [
         //     'mill_id' => 14,
         //     '--disable-event-dispatcher' => true,
         // ]),
-        // (new Crontab())->setType('command')->setName('sendLatestData_15')->setRule('* * * * *')->setCallback([
-        //     'command' => 'fossnir:send',
-        //     'mill_id' => 15,
-        //     '--disable-event-dispatcher' => true,
-        // ]),
+        (new Crontab())->setType('command')->setName('sendLatestData_15')->setRule('* * * * *')->setCallback([
+            'command' => 'fossnir:send',
+            'mill_id' => 15,
+            '--disable-event-dispatcher' => true,
+        ]),
     ],
 ];
