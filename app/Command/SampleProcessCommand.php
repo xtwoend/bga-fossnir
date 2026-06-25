@@ -27,7 +27,7 @@ class SampleProcessCommand extends HyperfCommand
 
     public function handle()
     {
-        $date = $this->input->getArgument('date') ?? date('Y-m-d');
+        $date = date('Y-m-d');
         
         $this->line('Sample on processing', 'info');
         $samples = Sample::byDate($date)
