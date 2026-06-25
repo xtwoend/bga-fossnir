@@ -15,18 +15,12 @@ class ProcessSample
     #[Inject]
     private StdoutLoggerInterface $logger;
 
-    protected $client;
-    protected $username;
-    protected $password;
-
     public function __construct() {
         // 
     }
 
     public function execute()
     {
-        $this->logger->info(date('Y-m-d H:i:s', time()));
-
         $samples = Sample::byDate(date('Y-m-d'))
             ->select(Db::raw("device_id as mill_id, 
                 sample_date, 
@@ -40,7 +34,7 @@ class ProcessSample
             ->get();
 
         foreach($samples as $sample) {
-            $fossnir_data = FossnirData::table($sample->mill_id)->updateOrCreate([
+            FossnirData::table($sample->mill_id)->updateOrCreate([
                 'mill_id' => $sample->mill_id,
                 'sample_date' => $sample->sample_date,
                 'product_name' => $sample->product_name
@@ -52,7 +46,7 @@ class ProcessSample
                 'nos' => $sample->nos
             ]);
 
-            $s = Sample::byDate(date('Y-m-d'))
+            Sample::byDate(date('Y-m-d'))
             ->where([
                 'device_id' => $sample->mill_id, 
                 'sample_date' => $sample->sample_date,
