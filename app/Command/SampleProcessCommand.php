@@ -67,6 +67,8 @@ class SampleProcessCommand extends HyperfCommand
                         'sample_date' => $sample->sample_date,
                         'product_name' => $sample->product_name,
                     ])->update(['status' => 1]);
+
+                $this->line("Prosses {$sample->product_name} - {$sample->sample_date}");
             }
             
             $count = count($samples);
