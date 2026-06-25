@@ -30,6 +30,7 @@ class SampleProcessCommand extends HyperfCommand
         $date = date('Y-m-d');
         $chunkSize = 500;
         $processed = 0;
+        $batch = 1;
         
         $this->line('Sample on processing', 'info');
 
@@ -67,8 +68,13 @@ class SampleProcessCommand extends HyperfCommand
                         'product_name' => $sample->product_name,
                     ])->update(['status' => 1]);
             }
+            
+            $count = count($samples);
+            $processed += $count;
+            $batch++;
 
-            $processed += count($samples);
+            $this->line("Batch {$batch} total sample {$count}");
+
         } while (count($samples) === $chunkSize);
 
         $this->line("Sample processed: {$processed}", 'info');
