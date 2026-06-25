@@ -27,8 +27,10 @@ class SampleProcessCommand extends HyperfCommand
 
     public function handle()
     {
+        $date = $this->input->getArgument('date') ?? date('Y-m-d');
+        
         $this->line('Sample on processing', 'info');
-        $samples = Sample::byDate(date('Y-m-d'))
+        $samples = Sample::byDate($date)
             ->select(Db::raw("device_id as mill_id, 
                 sample_date, 
                 product_name, 
@@ -42,7 +44,7 @@ class SampleProcessCommand extends HyperfCommand
 
 
         foreach($samples as $sample) {
-            $fossnir_data = FossnirData::table($sample->mill_id)->updateOrCreate([
+            FossnirData::table($sample->mill_id)->updateOrCreate([
                 'mill_id' => $sample->mill_id,
                 'sample_date' => $sample->sample_date,
                 'product_name' => $sample->product_name
@@ -54,7 +56,7 @@ class SampleProcessCommand extends HyperfCommand
                 'nos' => $sample->nos
             ]);
 
-            $s = Sample::byDate(date('Y-m-d'))
+            Sample::byDate(date('Y-m-d'))
             ->where([
                 'device_id' => $sample->mill_id, 
                 'sample_date' => $sample->sample_date,
