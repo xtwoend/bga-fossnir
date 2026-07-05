@@ -63,7 +63,7 @@ class ReceiverController
         $perPage = $request->input('per_page', 50);
 
         $samples = $samples->orderBy('sample_date', 'desc')
-            ->paginate($perPage);
+            ->paginate((int) $perPage);
 
         return $response->json([
             'error' => 0, 
