@@ -45,7 +45,7 @@ class ReceiverController
             'error' => 0, 
             'message' => 'data successfuly record',
             'count' => count($samples)
-        ], 200);
+        ])->withStatus(200);
     }
 
     #[RequestMapping(path: '/api/samples', methods: 'GET')]
@@ -67,6 +67,6 @@ class ReceiverController
         return $response->json([
             'error' => 0, 
             'data' => $samples
-        ], 200);
+        ])->withStatus(200);
     }
 }
