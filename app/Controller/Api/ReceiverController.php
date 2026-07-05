@@ -54,12 +54,12 @@ class ReceiverController
 
         $date = $request->input('date', date('Y-m-d'));
 
-        $samples = Sample::byDate($date);
+        $samples = Sample::byDate($date)->whereDate('sample_date', $date);
 
         if($request->has('device_id')) {
             $samples = $samples->where('device_id', (int) $request->input('device_id'));
-        }   
-
+        }
+        
         $perPage = $request->input('per_page', 50);
 
         $samples = $samples->orderBy('sample_date', 'desc')
