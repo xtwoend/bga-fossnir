@@ -60,8 +60,10 @@ class ReceiverController
             $samples = $samples->where('device_id', (int) $request->input('device_id'));
         }   
 
+        $perPage = $request->input('per_page', 50);
+
         $samples = $samples->orderBy('sample_date', 'desc')
-            ->paginate($request->input('per_page', 10), ['*'], 'page', $request->input('page', 1));
+            ->paginate($perPage);
 
         return $response->json([
             'error' => 0, 
