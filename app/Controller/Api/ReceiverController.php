@@ -61,8 +61,7 @@ class ReceiverController
         }   
 
         $samples = $samples->orderBy('sample_date', 'desc')
-            ->limit(50)
-            ->get();
+            ->paginate($request->input('per_page', 10), ['*'], 'page', $request->input('page', 1));
 
         return $response->json([
             'error' => 0, 
