@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use App\Model\FossnirData;
+// use App\Model\FossnirData;
 use App\Model\Sample;
 
 use function Hyperf\Collection\collect;
