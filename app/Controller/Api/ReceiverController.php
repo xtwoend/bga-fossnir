@@ -65,7 +65,15 @@ class ReceiverController
 
         return $response->json([
             'error' => 0, 
-            'data' => $samples
+            'data' => $samples,
+            'meta' => [
+                'total' => $samples->total(),
+                'per_page' => $samples->perPage(),
+                'current_page' => $samples->currentPage(),
+                'last_page' => $samples->lastPage(),
+                'from' => $samples->firstItem(),
+                'to' => $samples->lastItem()
+            ]
         ])->withStatus(200);
     }
 }
