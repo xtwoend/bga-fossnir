@@ -51,7 +51,10 @@ class ReceiverController
     #[RequestMapping(path: '/api/samples', methods: 'GET')]
     public function last(RequestInterface $request, ResponseInterface $response)
     {
-        $samples = Sample::byDate(date('Y-m-d'));
+
+        $date = $request->input('date', date('Y-m-d'));
+
+        $samples = Sample::byDate($date);
 
         if($request->has('device_id')) {
             $samples = $samples->where('device_id', (int) $request->input('device_id'));
