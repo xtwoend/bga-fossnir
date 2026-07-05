@@ -65,7 +65,7 @@ class ReceiverController
 
         return $response->json([
             'error' => 0, 
-            'data' => $samples,
+            'data' => $samples->items(),
             'meta' => [
                 'total' => $samples->total(),
                 'per_page' => $samples->perPage(),
