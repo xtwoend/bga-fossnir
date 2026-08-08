@@ -89,7 +89,7 @@ class SendFossnirLatestCommand extends HyperfCommand
             $latest = FossnirData::table($mill_id)->where('product_name', $product)->whereDate('sample_date', '<=', $date)->orderBy('sample_date', 'desc')->first();
             if ($latest) {
                 $productName = str_replace(' ', '_', strtolower($product));
-                $data[$productName] = $latest->owm ?? null; 
+                $data[$productName] = (string) $latest->owm ?? null; 
             }
         }
 
