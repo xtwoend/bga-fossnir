@@ -13,12 +13,12 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Carbon\Carbon;
-use App\Model\CSVRead;
+// use App\Model\CSVRead;
 use App\Model\FossnirDir;
 use App\Model\FossnirData;
 use Hyperf\Stringable\Str;
 use App\Model\GroupProduct;
-use App\Model\FossnirProduct;
+// use App\Model\FossnirProduct;
 use PhpMqtt\Client\MqttClient;
 use function Hyperf\Support\env;
 use function Hyperf\Config\config;
@@ -86,7 +86,7 @@ class SendFossnirLatestCommand extends HyperfCommand
 
         $data = [];
         foreach ($products as $product) {
-            $latest = FossnirData::table($mill_id)->where('product_name', $product)->whereDate('sample_date', '=', $date)->orderBy('sample_date', 'desc')->first();
+            $latest = FossnirData::table($mill_id)->where('product_name', $product)->whereDate('sample_date', '<=', $date)->orderBy('sample_date', 'desc')->first();
             if ($latest) {
                 $productName = str_replace(' ', '_', strtolower($product));
                 $data[$productName] = $latest->owm ?? null; 
