@@ -70,7 +70,30 @@ class SendFossnirLatestCommand extends HyperfCommand
             // if ((bool) env('APP_DEBUG', false)) {
             //     $this->send2('data/bga/fossnir/' . strtolower($mill->mill_name), $data);
             // }
+
+            $this->sendLatest($mill_id, $date);
         }
+    }
+
+    private function sendLatest(string $mill_id, string $date)
+    {
+        $mill = FossnirDir::find($mill_id);
+        $products = FossnirData::table($mill_id)
+            ->select('product_name')
+            ->groupBy('product_name')
+            ->pluck('product_name')
+            ->toArray();
+
+        $data = [];
+        foreach ($products as $product) {
+            $latest = FossnirData::table($mill_id)->where('product_name', $product)->whereDate('sample_date', '=', $date)->orderBy('sample_date', 'desc')->first();
+            if ($latest) {
+                $productName = str_replace(' ', '_', strtolower($product));
+                $data[$productName] = $latest->owm ?? null; 
+            }
+        }
+
+        $this->send('data/bga/fossnir/latest/' . strtolower($mill->mill_name), $data);
     }
 
     protected function getArguments()
